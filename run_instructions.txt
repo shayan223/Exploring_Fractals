@@ -1,0 +1,54 @@
+compile with:
+
+cc FPToolkitDemoB.c -lm -lX11
+
+MUST HAVE FPToolkit.c in same directory to compile
+
+in demo:
+click to make a dot, click again to make another, and a line that connects the two
+click any key to then close it
+
+OUTPUTS A BITMAP FILE on closing, with file type .bmp
+
+*WARNING* when coding, use doubles everywhere you arent index accessing or boolean
+
+FOR CODING:
+
+G_rgb(double,double,double) sets drawing color for the whole environment, takes RGB from 0 to 1, 0.0,0.0,0.0 is black, 1's are white
+
+G_clear() fills screen with current color
+
+G_point(x,y)
+G_line(x1,y1,x2,y2) draws line from x1,y1 -> x2,y2
+
+
+G_rectangle(bottom_left_x, bottom_left_y, width, height)
+G_fill_triangle(...) # Same but filled in
+*NOTE these cannot be tilted!!!*
+
+G_circle(center_x,center_y,radius)
+G_fill_circle(...) # same but filled in
+
+
+G_polygon(list_of_x, list_of_y)
+G_fill_pollygon is the same
+
+
+
+################  Interactive stuff  ###########################
+
+
+G_wait_click(array_of_2) takes an array of size two (such as p[2]), on click stores x in p[0] and y in p[1]
+G_wait_key() waits for key input, returns pressed key
+
+*IMPORTANT* :: NEED WAITKEY COMMAND TO SEE ANYTHING
+all drawings go into a memory buffer, need to use a wait key/click to stop and see anything at a given point in a program.
+
+
+G_save_to_bmp(file_dest.bmp) saves image to bitmap file
+
+looks at demo for more examples
+
+
+
+
