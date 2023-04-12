@@ -26,36 +26,40 @@ int rotate_around_center(double center [], double p [], double angle){
 
 }
 
-int angled_box(double center [], double width, double angle)
+int make_triangle(double bottom_left [], double width, double height, double angle)
 {
-    double p1[2],p2[2],p3[2],p4[2];
-
-    // create first square point (bottom left)
-    p1[0] = center[0] - (width/2);
-    p1[1] = center[1] - (width/2);
-
-    // second point, to make the first line
-    p2[0] = center[0] + (width/2);
-    p2[1] = center[1] - (width/2);
-
-    // third point, top right
-    p3[0] = center[0] + (width/2);
-    p3[1] = center[1] + (width/2);
-
-    // fourth point, top left
-    p4[0] = center[0] - (width/2);
-    p4[1] = center[1] + (width/2);
+    double bl[2], bottom_right[2], top_point[2], center[2];
     
-    rotate_around_center(center,p1,angle);
-    rotate_around_center(center,p2,angle);
-    rotate_around_center(center,p3,angle);
-    rotate_around_center(center,p4,angle);
+    bl[0] = bottom_left[0];
+    bl[1] = bottom_left[1];
+    bottom_right[0] = bl[0] + width;
+    bottom_right[1] = bl[1];
 
-    //Draw square
-    G_line(p1[0],p1[1],p2[0],p2[1]);
-    G_line(p2[0],p2[1],p3[0],p3[1]);
-    G_line(p3[0],p3[1],p4[0],p4[1]);
-    G_line(p4[0],p4[1],p1[0],p1[1]);
+    //top of triangle x value is average of the base points (middle)
+    top_point[0] = (bl[0] + bottom_right[0]) / 2.0;
+    top_point[1] = bl[1] + height;
+
+    //apply rotation if needed
+    if(angle > 0)
+    {
+        //Compute center of triangle (average of all x/y points is the centroid)
+        center[0] = (bl[0] + bottom_right[0] + top_point[0]) / 3.0;
+        center[1] = (bl[1] + bottom_right[1] + top_point[1]) / 3.0;
+        rotate_around_center(center,bl,angle);
+        rotate_around_center(center,bottom_right,angle);
+        rotate_around_center(center,top_point,angle);
+    }
+
+    G_line(bl[0],bl[1],bottom_right[0],bottom_right[1]);
+    G_line(bottom_right[0],bottom_right[1],top_point[0],top_point[1]);
+    G_line(top_point[0],top_point[1],bl[0],bl[1]);
+
+    return 1;
+    
+}
+
+//recursive function for Sierpinsk Triangle
+int SK_triangle(){
 
     return 1;
 }
@@ -96,19 +100,18 @@ int main()
         G_line(i,0,i,swidth-1);
     }
 
-
-
-
     // ######## Draw angled box at given center ##########
     G_rgb(0,1,0);
     double p[2];
 
+    for(int i = 0; i < 3; i++)
+    {
+        G_wait_click(p) ;
+        make_triangle(p,100,100,0);
+    }
 
-    G_wait_click(p) ;
-    G_fill_circle(p[0],p[1],2) ;
-
-    //function params: center, width, angle
-    angled_box(p,100,45);
+    G_wait_click(p) ;    
+    make_triangle(p,100,100,45);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
