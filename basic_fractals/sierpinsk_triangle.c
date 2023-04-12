@@ -59,9 +59,36 @@ int make_triangle(double bottom_left [], double width, double height, double ang
 }
 
 //recursive function for Sierpinsk Triangle
-int SK_triangle(){
+int SK_triangle(double p[], int total_depth, double size){
+    double temp_p[2];
+    temp_p[0] = p[0];
+    temp_p[1] = p[1];
+    SK_recurse(temp_p[0],temp_p[1],total_depth,0,size);
+    return 1;
+}
+
+int SK_recurse(double px, double py, int total_depth, int cur_depth, double size){
+    if(cur_depth <= total_depth){
+        
+        //create triangle
+        double p[2];
+        p[0] = px;
+        p[1] = py;
+
+        make_triangle(p,size,size,0);
+        //recurse into 3 sub triangles, using bottom left of each child
+        //compute center of two points to start next triangle
+        
+        //bottom left child
+        SK_recurse(px,py,total_depth,cur_depth+1,size/2);
+        //bottom right child
+        SK_recurse(px+(px+size)/2,py,total_depth,cur_depth+1,size/2);
+        //top child
+        SK_recurse(px+(px+size)/4,py+(py+size)/2,total_depth,cur_depth+1,size/2);
+    }
 
     return 1;
+
 }
 
 int main()
@@ -103,7 +130,7 @@ int main()
     // ######## Draw angled box at given center ##########
     G_rgb(0,1,0);
     double p[2];
-
+    /*
     for(int i = 0; i < 3; i++)
     {
         G_wait_click(p) ;
@@ -112,6 +139,12 @@ int main()
 
     G_wait_click(p) ;    
     make_triangle(p,100,100,45);
+    */
+
+    //G_wait_click(p) ; 
+    p[0] = 10;
+    p[1] = 5;   
+    SK_triangle(p,4,750);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
