@@ -5,6 +5,23 @@
 #include <math.h>
 
 
+int point_along_line(double p[], double q[], double point [], double t){
+    double ax, ay, bx, by;
+    double y_val, x_val;
+    ax = p[0];
+    ay = p[1];
+    bx = q[0];
+    by = q[1];
+
+    x_val = (1 - t)*ax + t*bx;
+    y_val = (1 - t)*ay + t*by;
+
+    point[0] = x_val;
+    point[1] = y_val;
+
+    return 1;
+}
+
 
 int rotate_around_center(double center [], double p [], double angle){
 
@@ -58,12 +75,33 @@ int make_triangle(double bottom_left [], double width, double height, double ang
     
 }
 
+int make_eq_triangle(double bottom_left [], double side_len){
+    double p1 [2];
+    double p2 [2];
+    double p3 [2];
+
+    p1[0] = bottom_left[0];
+    p1[1] = bottom_left[1];
+
+    p2[0] = p1[0]+side_len;
+    p2[1] = p1[1];
+
+    p3[0] = p1[0] + (side_len / 2);
+    p3[1] = (.5)*(sqrt(3)*side_len);
+
+    G_line(p1[0],p1[1],p2[0],p2[1]);
+    G_line(p2[0],p2[1],p3[0],p3[1]);
+    G_line(p3[0],p3[1],p1[0],p1[1]);
+
+    return 1;
+}
+
 //recursive function for Sierpinsk Triangle
 int SK_triangle(double p[], int total_depth, double size){
     double temp_p[2];
     temp_p[0] = p[0];
     temp_p[1] = p[1];
-    SK_recurse(temp_p[0],temp_p[1],total_depth,0,size);
+    SK_recurse(temp_p[0],temp_p[1],total_depth,1,size);
     return 1;
 }
 
@@ -72,19 +110,26 @@ int SK_recurse(double px, double py, int total_depth, int cur_depth, double size
         
         //create triangle
         double p[2];
+        double top_point[2];
+        double top_child_point[2];
         p[0] = px;
         p[1] = py;
 
-        make_triangle(p,size,size,0);
+        top_point[0] = px + (size / 2.0);
+        top_point[1] = py+((.5)*(sqrt(3.0)*size));
+
+        //make_eq_triangle(p,size);
+        Triangle_X(px,py,px+size,py,top_point[0],top_point[1]);
         //recurse into 3 sub triangles, using bottom left of each child
         //compute center of two points to start next triangle
         
         //bottom left child
-        SK_recurse(px,py,total_depth,cur_depth+1,size/2);
+        SK_recurse(px,py,total_depth,cur_depth+1,size/2.0);
         //bottom right child
-        SK_recurse(px+(px+size)/2,py,total_depth,cur_depth+1,size/2);
+        SK_recurse(px+(size/2),py,total_depth,cur_depth+1,size/2.0);
         //top child
-        SK_recurse(px+(px+size)/4,py+(py+size)/2,total_depth,cur_depth+1,size/2);
+        point_along_line(p,top_point,top_child_point,.5);
+        SK_recurse(top_child_point[0],top_child_point[1],total_depth,cur_depth+1,size/2.0);
     }
 
     return 1;
@@ -142,9 +187,9 @@ int main()
     */
 
     //G_wait_click(p) ; 
-    p[0] = 10;
+    p[0] = 5;
     p[1] = 5;   
-    SK_triangle(p,4,750);
+    SK_triangle(p,8,750);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
