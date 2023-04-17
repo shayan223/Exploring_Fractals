@@ -26,36 +26,14 @@ int rotate_around_center(double center [], double p [], double angle){
 
 }
 
-int angled_box(double center [], double width, double angle)
-{
-    double p1[2],p2[2],p3[2],p4[2];
+int koch_curve(double diameter){
+    return koch_curve_recurse(diameter,10,1);
+}
 
-    // create first square point (bottom left)
-    p1[0] = center[0] - (width/2);
-    p1[1] = center[1] - (width/2);
+int koch_curve_recurse(double diameter, int total_depth, int cur_depth){
 
-    // second point, to make the first line
-    p2[0] = center[0] + (width/2);
-    p2[1] = center[1] - (width/2);
+    if(cur_depth != total_depth)
 
-    // third point, top right
-    p3[0] = center[0] + (width/2);
-    p3[1] = center[1] + (width/2);
-
-    // fourth point, top left
-    p4[0] = center[0] - (width/2);
-    p4[1] = center[1] + (width/2);
-    
-    rotate_around_center(center,p1,angle);
-    rotate_around_center(center,p2,angle);
-    rotate_around_center(center,p3,angle);
-    rotate_around_center(center,p4,angle);
-
-    //Draw square
-    G_line(p1[0],p1[1],p2[0],p2[1]);
-    G_line(p2[0],p2[1],p3[0],p3[1]);
-    G_line(p3[0],p3[1],p4[0],p4[1]);
-    G_line(p4[0],p4[1],p1[0],p1[1]);
 
     return 1;
 }
@@ -99,16 +77,12 @@ int main()
 
 
 
-    // ######## Draw angled box at given center ##########
-    G_rgb(0,1,0);
-    double p[2];
-
 
     G_wait_click(p) ;
     G_fill_circle(p[0],p[1],2) ;
 
     //function params: center, width, angle
-    angled_box(p,100,45);
+    koch_curve(500);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
