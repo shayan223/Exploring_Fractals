@@ -97,15 +97,17 @@ int make_eq_triangle(double bottom_left [], double side_len){
 }
 
 //recursive function for Sierpinsk Triangle
-int SK_triangle(double p[], int total_depth, double size){
+int SK_triangle(double p[], int total_depth, double size, int artsy){
     double temp_p[2];
     temp_p[0] = p[0];
     temp_p[1] = p[1];
-    SK_recurse(temp_p[0],temp_p[1],total_depth,1,size);
+    SK_recurse(temp_p[0],temp_p[1],total_depth,1,size,artsy);
     return 1;
 }
 
-int SK_recurse(double px, double py, int total_depth, int cur_depth, double size){
+int SK_recurse(double px, double py, int total_depth, int cur_depth, double size,int artsy){
+    G_rgb(0,1,0);
+
     if(cur_depth <= total_depth){
         
         //create triangle
@@ -124,12 +126,26 @@ int SK_recurse(double px, double py, int total_depth, int cur_depth, double size
         //compute center of two points to start next triangle
         
         //bottom left child
-        SK_recurse(px,py,total_depth,cur_depth+1,size/2.0);
+        SK_recurse(px,py,total_depth,cur_depth+1,size/2.0,artsy);
         //bottom right child
-        SK_recurse(px+(size/2),py,total_depth,cur_depth+1,size/2.0);
+        SK_recurse(px+(size/2),py,total_depth,cur_depth+1,size/2.0,artsy);
         //top child
         point_along_line(p,top_point,top_child_point,.5);
-        SK_recurse(top_child_point[0],top_child_point[1],total_depth,cur_depth+1,size/2.0);
+        SK_recurse(top_child_point[0],top_child_point[1],total_depth,cur_depth+1,size/2.0,artsy);
+
+        
+        //Fill in negative space
+        G_rgb(0,0,1);
+        if(artsy){
+            // use parameterization to create color gradient
+            double depth_ratio = (double)cur_depth/(double)total_depth;
+            double color_val = (1 - depth_ratio)*0 + depth_ratio*1;
+            G_rgb(0,depth_ratio,1-depth_ratio);
+        }
+        Fill_Triangle_X(px + (size / 2.0), py, 
+                top_child_point[0],top_child_point[1],
+                top_child_point[0]+(size/2.0), top_child_point[1]);
+
     }
 
     return 1;
@@ -175,21 +191,12 @@ int main()
     // ######## Draw angled box at given center ##########
     G_rgb(0,1,0);
     double p[2];
-    /*
-    for(int i = 0; i < 3; i++)
-    {
-        G_wait_click(p) ;
-        make_triangle(p,100,100,0);
-    }
-
-    G_wait_click(p) ;    
-    make_triangle(p,100,100,45);
-    */
 
     //G_wait_click(p) ; 
     p[0] = 5;
-    p[1] = 5;   
-    SK_triangle(p,8,750);
+    p[1] = 5;
+    int do_art = 1;   
+    SK_triangle(p,6,750,do_art);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
