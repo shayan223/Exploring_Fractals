@@ -26,13 +26,20 @@ int rotate_around_center(double center [], double p [], double angle){
 
 }
 
-int koch_curve(double diameter){
-    return koch_curve_recurse(diameter,10,1);
+int koch_curve(double diameter, double start_x, double start_y){
+
+    //start a 4 segment square, recurse on each, with the start being the bottom left
+
+    koch_curve_recurse(diameter,10,1,start_x,start_y);
+
+    return 1;
 }
 
-int koch_curve_recurse(double diameter, int total_depth, int cur_depth){
+int koch_curve_recurse(double diameter, int total_depth, int cur_depth, double x, double y){
 
-    if(cur_depth != total_depth)
+    if(cur_depth != total_depth){
+        //each koch depth has 4 segments
+    }
 
 
     return 1;
