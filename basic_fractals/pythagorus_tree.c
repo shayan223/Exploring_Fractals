@@ -71,64 +71,83 @@ int make_polygon(double start_x, double start_y, double width, double height){
     return 1;
 }
 
-int pythag_triangle(double start_x, double start_y, int max_depth, double triangle_center, double width, double height){
+int pythag_triangle(double x1, double y1, double x2, double y2, int max_depth, int cur_depth, double triangle_center, double width, double height){
     G_rgb(0,1,0);
-    //left point of triangle
-    double p0[2];
-    //middle point
-    double p1[2];
-    //right point
-    double p2[2];
 
-    //make initial box
-    //make_polygon(start_x,start_y,box_width,box_height);
-    G_line(start_x,start_y,start_x+width,start_y);
-    G_line(start_x+width,start_y,start_x+width,start_y+height);
-    G_line(start_x+width,start_y+height,start_x,start_y + height);
-    G_line(start_x,start_y + height,start_x,start_y);
+    if(cur_depth <= max_depth){
+        //draw right anle movement from the base line
+        double x3,y3, x4,y4, delta_ax, delta_ay;
+
+        delta_ax = x2 - x1;
+        delta_ay = y2 - y1;
+
+        x3 = x1 - delta_ay;
+        y3 = y1 + delta_ax;
+
+        x4 = x2 - delta_ay;
+        y4 = y2 + delta_ax;
+
+        //make initial box
+
+        G_line(x1,y1,x2,y2);
+        G_line(x2,y2,x4,y4);
+        G_line(x4,y4,x3,y3);
+        G_line(x3,y3,x1,y1);
+
+        //left point of triangle
+        double p0[2];
+        //middle point
+        double p1[2];
+        //right point
+        double p2[2];
 
 
-    //define triangle points to start
-    p0[0] = start_x;
-    p0[1] = start_y + height;
+        //define triangle points to start
+        p0[0] = x3;
+        p0[1] = y3;
 
-    p2[0] = start_x + width;
-    p2[1] = start_y + height;
+        p2[0] = x4;
+        p2[1] = y4;
 
-    //Compute middle point at base of triangle
-    double m[2];
-    point_along_line(p0[0],p0[1],p2[0],p2[1],triangle_center,m);
-    //hold on to length of line segments
-    double d, d1, d2;
-    d = sqrt(pow((p2[0] - p0[0]),2) + pow(p2[1] - p0[1],2)); //p0 to p2
-    d1 = sqrt(pow((m[0] - p0[0]),2) + pow(m[1] - p0[1],2)); // p0 to m between them
-    d2 = sqrt(pow((p2[0] - m[0]),2) + pow(p2[1] - m[1],2)); // m to p2
+        //Compute middle point at base of triangle
+        double m[2];
+        point_along_line(p0[0],p0[1],p2[0],p2[1],triangle_center,m);
+        //hold on to length of line segments
+        double d, d1, d2;
+        d = sqrt(pow((p2[0] - p0[0]),2) + pow(p2[1] - p0[1],2)); //p0 to p2
+        d1 = sqrt(pow((m[0] - p0[0]),2) + pow(m[1] - p0[1],2)); // p0 to m between them
+        d2 = sqrt(pow((p2[0] - m[0]),2) + pow(p2[1] - m[1],2)); // m to p2
 
-    //find the height of the triangle that maintains a right angle
-    double h;
-    h = sqrt(d1*d2);
+        //find the height of the triangle that maintains a right angle
+        double h;
+        h = sqrt(d1*d2);
 
-    //compute scale factor for right angle movement
-    double scale_factor = (h/d);
+        //compute scale factor for right angle movement
+        double scale_factor = (h/d);
 
-    //find the right angle point from m
-    double delta_x, delta_y;
-    delta_x = p2[0] - p0[0];
-    delta_y = p2[1] - p0[1];
+        //find the right angle point from m
+        double delta_x, delta_y;
+        delta_x = p2[0] - p0[0];
+        delta_y = p2[1] - p0[1];
 
-    //find the floating right angle point
-    double r [2];
-    r[0] = m[0] + (-1*delta_y);
-    r[1] = m[1] + delta_x;
+        //find the floating right angle point
+        double r [2];
+        r[0] = m[0] + (-1*delta_y);
+        r[1] = m[1] + delta_x;
 
-    //scale it back down to where we need it, storing it in p1
-    point_along_line(r[0],r[1],m[0],m[1],scale_factor,p1);
+        //scale it back down to where we need it, storing it in p1
+        point_along_line(r[0],r[1],m[0],m[1],scale_factor,p1);
 
-    //draw triangle
-    G_triangle(p0[0],p0[1],p1[0],p1[1],p2[0],p2[1]);
+        //draw triangle
+        G_triangle(p0[0],p0[1],p1[0],p1[1],p2[0],p2[1]);
 
+        //children draw between each trangle point (left and right of the triangles outward sides)
+        pythag_triangle(p0[0],p0[1],p1[0],p1[0],max_depth,cur_depth+1,triangle_center,width,height);
+        pythag_triangle(p1[0],p1[1],p2[0],p2[0],max_depth,cur_depth+1,triangle_center,width,height);
+    }
 
     //pythag_recursive(start_x,start_y,max_depth,1,triangle_center, box_width, box_height);
+
     return 1;
 }
 
@@ -161,11 +180,11 @@ int main()
     G_rgb (0.3, 0.3, 0.3) ; // dark gray
     G_clear () ;
 
-    int depth = 2;
+    int depth = 10;
     double triangle_center = 0.5 ;
     double box_width = 20;
     double box_height = 20;
-    pythag_triangle(400,10,depth,triangle_center,box_width,box_height);
+    pythag_triangle(400,10,400+box_width,10,1,depth,triangle_center,box_width,box_height);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
