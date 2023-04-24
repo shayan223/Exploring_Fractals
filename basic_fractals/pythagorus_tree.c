@@ -72,7 +72,6 @@ int make_polygon(double start_x, double start_y, double width, double height){
 }
 
 int pythag_triangle(double x1, double y1, double x2, double y2, int max_depth, int cur_depth, double triangle_center, double width, double height){
-    G_rgb(0,1,0);
 
     if(cur_depth <= max_depth){
         //draw right anle movement from the base line
@@ -142,25 +141,13 @@ int pythag_triangle(double x1, double y1, double x2, double y2, int max_depth, i
         G_triangle(p0[0],p0[1],p1[0],p1[1],p2[0],p2[1]);
 
         //children draw between each trangle point (left and right of the triangles outward sides)
-        pythag_triangle(p0[0],p0[1],p1[0],p1[0],max_depth,cur_depth+1,triangle_center,width,height);
-        pythag_triangle(p1[0],p1[1],p2[0],p2[0],max_depth,cur_depth+1,triangle_center,width,height);
-    }
-
-    //pythag_recursive(start_x,start_y,max_depth,1,triangle_center, box_width, box_height);
-
-    return 1;
-}
-
-int pythag_recursive(double base0[], double base1[], int max_depth, int cur_depth, double triangle_center, double box_width, double box_height){
-    if(cur_depth <= max_depth){
-        //create triangle, with base across the width of the square
-
-        //right angle movement to get the new p0 and p2
-        
+        pythag_triangle(p0[0],p0[1],p1[0],p1[1],max_depth,cur_depth+1,triangle_center,width,height);
+        pythag_triangle(p1[0],p1[1],p2[0],p2[1],max_depth,cur_depth+1,triangle_center,width,height);
     }
 
     return 1;
 }
+
 
 int main()
 {
@@ -181,10 +168,13 @@ int main()
     G_clear () ;
 
     int depth = 10;
-    double triangle_center = 0.5 ;
-    double box_width = 20;
+    double triangle_center = 0.4 ;
+    double box_width = 100;
     double box_height = 20;
-    pythag_triangle(400,10,400+box_width,10,1,depth,triangle_center,box_width,box_height);
+
+    G_rgb(0,1,0);
+
+    pythag_triangle(400,50,400+box_width,50,depth,1,triangle_center,box_width,box_height);
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
