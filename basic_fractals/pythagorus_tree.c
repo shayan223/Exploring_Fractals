@@ -37,39 +37,6 @@ int rotate_around_center(double center [], double p [], double angle){
 
 }
 
-int make_polygon(double start_x, double start_y, double width, double height){
-
-    G_rgb(0,1,0);
-    double squarex[4];
-    double squarey[4];
-    double p3[2]; 
-    double p4[2];
-
-    //p1 and p2 are the base points, so the remaining 2 points for the box
-    // form a parallel line of the same width, height pixels away.
-
-    //point height pixels away from p1, rotated to be perpendicular
-    //p4[0] = p1[0];
-    //p4[1] = p1[1] + height;
-
-    //find clockwise rotation angle
-    //double angle = 0;
-
-
-    //points clockwise from bottom left
-    squarex[0] = start_x;
-    squarex[1] = start_x + width;
-    squarex[2] = start_x + width;
-    squarex[3] = start_x;
-
-    squarey[0] = start_y;
-    squarey[1] = start_y;
-    squarey[2] = start_y + height;
-    squarey[3] = start_y + height;
-    //Polygon_X(squarex,squarey,4);
-
-    return 1;
-}
 
 int pythag_triangle(double x1, double y1, double x2, double y2, int max_depth, int cur_depth, double triangle_center, double width, double height){
 
@@ -148,6 +115,9 @@ int pythag_triangle(double x1, double y1, double x2, double y2, int max_depth, i
     return 1;
 }
 
+double parametric(double x0, double x1, double t, double power){
+    return x0 + pow(t,power)*(x1 - x0);
+}
 
 int main()
 {
@@ -167,17 +137,72 @@ int main()
     G_rgb (0.3, 0.3, 0.3) ; // dark gray
     G_clear () ;
 
+
+    //Color blending variables
+    //starting color
+    double sr = 128/255.0;
+    double sg = 0/255.0;
+    double sb = 128/255.0;
+
+    //ending color
+    double er = 64/255.0;
+    double eg = 224/255.0;
+    double eb = 208/255.0;
+    
+    double r,g,b;
+    double r_pow = 1; //3
+    double g_pow = 1; //2
+    double b_pow = 1; //1
+
+    double color_scaling = 0;
+
     int depth = 10;
     double triangle_center = 0.4 ;
     double box_width = 100;
     double box_height = 20;
 
-    G_rgb(0,1,0);
+   
+    int key = 0 ;
+    double interval = 0.005;
+    double angle_min = 0.3;
+    double angle_max = 0.7;
+    double angle = angle_min;
+    int direction = 0;
 
-    pythag_triangle(400,50,400+box_width,50,depth,1,triangle_center,box_width,box_height);
 
-    int key ;   
-    key =  G_wait_key() ; // pause so user can see results
+    //Press and hold key to run, q to quit
+    while(key != 113)
+    {
+        //determine color for this iteration
+
+        color_scaling = (angle - angle_min) / (angle_max - angle_min);
+
+        r = parametric(sr,er,color_scaling,r_pow);
+        g = parametric(sg,eg,color_scaling,g_pow);
+        b = parametric(sb,eb,color_scaling,b_pow);
+        G_rgb(r,g,b);
+        //determine direction of change and adjust the angle, ocilating between min and max.
+        if(angle < (angle_max + interval) && direction == 0){
+            angle += interval;
+            //switch directions if threshold is exceeded after interval step
+            if(angle >= angle_max){
+                direction = 1;
+            }
+        }
+        else if(angle > (angle_min - interval) && direction == 1){
+            angle -= interval;
+            if(angle <= angle_min){
+                direction = 0;
+            }
+        }
+
+        pythag_triangle(400,50,400+box_width,50,depth,1,angle,box_width,box_height);
+        key =  G_wait_key() ; // pause so user can see results
+        //clear screen for next frame
+        G_rgb (0.3, 0.3, 0.3) ; // dark gray
+        G_clear () ;
+    }
+
 
     return 0;
 }
