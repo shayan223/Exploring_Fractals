@@ -3,17 +3,18 @@
 #include  "FPToolkit.c"
 #include <math.h>
 
-double ANGLE_INTERVAL = 90; //quarter turn
-double FORWARD_DISTANCE = 50;
+double ANGLE_INTERVAL = 30; //quarter turn
+double FORWARD_DISTANCE = 1;
 
 double turtle_walk(double p [],double angle, char inst){
-    G_rgb(0,0,1);
+    G_rgb(0,1,0);
     //holds on to original p values
     double p_temp[2];
     p_temp[0] = p[0];
     p_temp[1] = p[1];
 
-    if(inst == 'f'){
+    //defaults non terminal variables to the terminal 'f'
+    if(inst == 'f' || inst >= 'A' && inst <='Z'){
         //move in the x direction then rotate to the correct position
         p[0] = p_temp[0] + FORWARD_DISTANCE;
         rotate_around_center(p_temp,p,angle);
@@ -51,6 +52,15 @@ int rotate_around_center(double center [], double p [], double angle){
 
 }
 
+//generates a string of length n, represents our grammar
+int string_builder(char [], int n){
+
+}
+
+int autoplacer(){
+
+}
+
 int main()
 {
     int    swidth, sheight ;
@@ -65,11 +75,27 @@ int main()
     G_clear () ;
 
     double p [2];
-    p[0] = 200; // turtle starting x
-    p[1] = 200; // turtle starting y
+    p[0] = 100; // turtle starting x
+    p[1] = 10; // turtle starting y
     double angle = 0; //turtle starting angle (horizontal to the right)
 
-    char instructions[1000] = "f+f+ff-f";
+    //char instructions[1000] = "f+f+ff-f";
+    //code to read in instructions
+    char instructions[1000000];
+    scanf("%s",instructions);
+
+    //Things to keep in mind for later use:
+    /*
+        char u[1000000];
+        char v[1000000];
+        v[0] = '\0';
+        u[0] = '\0';
+        strcpy(u, "dog");
+        strcpy(v, "pig");
+        strcat(u,v); // results in "dogpig"
+    */
+
+
     for(int i = 0; i < strlen(instructions); ++i){
         angle = turtle_walk(p,angle,instructions[i]);
     }
