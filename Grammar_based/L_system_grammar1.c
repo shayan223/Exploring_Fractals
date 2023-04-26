@@ -5,6 +5,87 @@
 
 double ANGLE_INTERVAL = 30; //quarter turn
 double FORWARD_DISTANCE = 1;
+double PROD_LEN = 10;
+
+
+struct production{
+    //Note for axiom: We hold the string "B" NOT the character 'B'
+    char axiom [100];
+    char rule [100];
+    char var;
+} production;
+
+int grammar1(production prd[]){
+
+    /*
+        Creates the following Grammar:
+        Axiom: B
+        Rule 1 : A -> +A-C-A+
+        Rule 2 : B -> B+C+B
+        Rule 3 : C -> A-C-A
+    */
+
+    //one production per "rule" in the grammar
+    //first production will ONLY have axiom
+
+    prd[0].axiom = "B";
+
+    //Rule 1:
+    prd[1].var = 'A';
+    prd[1].rule = "+A-C-A+";
+
+    //Rule 2:
+    prd[2].var = 'B';
+    prd[2].rule = "B+C+B";
+
+    //rule 3:
+    prd[3].var = 'C';
+    prd[3].rule = "A-C-A";
+
+    //record length of rules in global (axiom plus 1 for each rule)
+    PROD_LEN = 4;
+
+    //returns index of last rule (ie. number of rules + 1 for axiom)
+    return 3;
+
+}
+
+//finds index of a given rule, -1 if terminal
+int find_rule(char prod_rule[], production prd[], int prd_len){
+    for(int i = 0; i < PROD_LEN; ++i){
+        //if rule is matched
+        if(strcmp(prd[i].var,prod_rule) == 0){
+            prod_rule = prd.rule;
+        }
+    }
+}
+
+
+//generates a string of the grammar expanded to the given depth, represents our grammar
+//Expands Axiom to a certain depth.
+int string_builder(char instructions[], int depth, production prd[]){
+    int iter = 0;
+    char cur_rule[100];
+
+    //string starts with axiom at depth 0
+    instructions = prd[0].axiom;
+
+    //at every depth level, loop through the string and expand it
+    while(iter < depth){
+        for (int i = 0; i < strlen(instructions); ++i);
+        {
+            cur_rule = instructions[i];
+            find_rule(cur_rule,prd);
+        }
+
+        iter++;
+    }
+
+}
+
+int autoplacer(double starting_position[]){
+
+}
 
 double turtle_walk(double p [],double angle, char inst){
     G_rgb(0,1,0);
@@ -52,14 +133,7 @@ int rotate_around_center(double center [], double p [], double angle){
 
 }
 
-//generates a string of length n, represents our grammar
-int string_builder(char [], int n){
 
-}
-
-int autoplacer(){
-
-}
 
 int main()
 {
@@ -82,7 +156,8 @@ int main()
     //char instructions[1000] = "f+f+ff-f";
     //code to read in instructions
     char instructions[1000000];
-    scanf("%s",instructions);
+    int depth = 0;
+    //scanf("%s",instructions);
 
     //Things to keep in mind for later use:
     /*
@@ -95,9 +170,15 @@ int main()
         strcat(u,v); // results in "dogpig"
     */
 
+    production prods[10];
+    //populate production rules based on grammar
+    grammar1(prods);
+    //construct string by expanding grammar to a given depth
+
 
     for(int i = 0; i < strlen(instructions); ++i){
         angle = turtle_walk(p,angle,instructions[i]);
+        printf("%f",angle);
     }
 
 
