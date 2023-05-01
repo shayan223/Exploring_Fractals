@@ -180,8 +180,8 @@ int main()
     G_clear () ;
 
     double p [2];
-    p[0] = 300; // turtle starting x
-    p[1] = 300; // turtle starting y
+    p[0] = 100; // turtle starting x
+    p[1] = 10; // turtle starting y
     double angle = 0; //turtle starting angle (horizontal to the right)
 
     //char instructions[1000] = "f+f+ff-f";
