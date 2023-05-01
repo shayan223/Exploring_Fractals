@@ -8,6 +8,7 @@ double FORWARD_DISTANCE = 1;
 double PROD_LEN = 10;
 double DEPTH = 10;
 long long BUFFER_SIZE = 500000;
+double MIN_X,MIN_Y,MAX_X,MAX_Y;
 
 struct production{
     //Note for axiom: We hold the string "B" NOT the character 'B'
@@ -111,11 +112,6 @@ int string_builder(char instructions [], int depth, struct production prd[]){
 
 }
 
-int autoplacer(double starting_position[]){
-
-}
-
-
 
 int rotate_around_center(double center [], double p [], double angle){
 
@@ -165,6 +161,55 @@ double turtle_walk(double p [],double angle, char inst){
 }
 
 
+int autoplacer(double p[]){
+    int inst_len = strlen(instructions);
+    //do first run through
+    for(int i = 0; i < inst_len; ++i){
+        angle = turtle_walk(p,angle,instructions[i]);
+        //update min/max location values
+        if(p[0] > MAX_X){
+            MAX_X = p[0];
+        }
+        if(p[0] < MIN_X){
+            MIN_X = p[0];
+        }
+        if(p[1] > MAX_Y){
+            MAX_Y = p[1];
+        }
+        if(p[1] < MIN_Y){
+            MIN_Y = p[1];
+        }
+    }
+    // clear the screen
+    G_rgb (0.3, 0.3, 0.3) ; // dark gray
+    G_clear () ;
+
+    //update and scale movement length and starting position
+    double delta_x, delta_y, scale_factor;
+    delta_x = MAX_X - MIN_X;
+    delta_y = MAX_Y - MIN_Y;
+
+    if(delta_x > delta_y){
+        scale_factor = swidth / delta_x;
+    }
+    else{
+        scale_factor = sheight / delta_y;
+    }
+    //scale it down slightly smaller than the screen
+    scale_factor = scale_factor*0.9;
+    FORWARD_DISTANCE = FORWARD_DISTANCE*scale_factor;
+
+    //shift starting point to center drawing
+
+    double new_x, new_y;
+
+    //redraw
+    for(int i = 0; i < inst_len; ++i){
+        angle = turtle_walk(p,angle,instructions[i]);
+    }
+
+}
+
 
 int main()
 {
@@ -205,11 +250,14 @@ int main()
     grammar1(prods);
     //construct string by expanding grammar to a given depth
     string_builder(instructions,DEPTH,prods);
-    int inst_len = strlen(instructions);
-    for(int i = 0; i < inst_len; ++i){
-        angle = turtle_walk(p,angle,instructions[i]);
-        //printf("%c",instructions[i]);
-    }
+
+    MIN_X = p[0];
+    MAX_X = p[0];
+
+    MIN_Y = p[1];
+    MAX_Y = p[1];
+
+    autoplacer(p);
 
 
     int key ;   
