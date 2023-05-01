@@ -6,7 +6,8 @@
 double ANGLE_INTERVAL = 30; //quarter turn
 double FORWARD_DISTANCE = 1;
 double PROD_LEN = 10;
-long long BUFFER_SIZE = 600000;
+double DEPTH = 10;
+long long BUFFER_SIZE = 500000;
 
 struct production{
     //Note for axiom: We hold the string "B" NOT the character 'B'
@@ -51,7 +52,7 @@ int grammar1(struct production prd[]){
 }
 
 //finds index of a given rule, -1 if terminal
-int find_rule(char prod_rule, struct production prd[], int prd_len){
+int find_rule(char prod_rule, struct production prd[]){
     for(int i = 1; i < PROD_LEN; ++i){
         //if rule is matched
         //if(strcmp(prd[i].var,prod_rule) == 0){
@@ -79,23 +80,32 @@ int string_builder(char instructions [], int depth, struct production prd[]){
         strcpy(temp, "\0");
         int rule_index = 0;
         int inst_len = strlen(instructions);
+
+        printf("Instruction length: %i Current Depth: %i \n ", inst_len, iter);
+
         for (int i = 0; i < inst_len; ++i)
         {
             //lookup and concat expanded terms
-            rule_index = find_rule(instructions[i],prd,PROD_LEN);
+            rule_index = find_rule(instructions[i],prd);
             if(rule_index >= 0){
                 strcat(temp,prd[rule_index].rule);
             }
             //simply copy terminals directly
             else{
-                strcat(temp,&instructions[i]);
+                //DON'T USE THIS: it takes the rest of the string after i
+                //strcat(temp,&instructions[i])
+
+                //Use one of these:
+                //char temp_inst = instructions[i];
+                //strcat(temp,&temp_inst);
+                strncat(temp,&instructions[i],1);
             }
         }
 
         //copy over expanded version of string back to its original array
         strcpy(instructions,temp);
 
-        iter++;
+        iter += 1;
     }
     return 0;
 
@@ -104,6 +114,29 @@ int string_builder(char instructions [], int depth, struct production prd[]){
 int autoplacer(double starting_position[]){
 
 }
+
+
+
+int rotate_around_center(double center [], double p [], double angle){
+
+    /* rotation around a center is:
+    
+    p(x,y) -> 
+        x = (centerx + (x - centerx)cos(angle) - (y - centery)sin(angle))
+        y = (centery + (x - centerx)sin(angle) + (y - centery)cos(angle))
+
+    */
+
+    double original_x = p[0];
+    double original_y = p[1];
+    double rad_angle = angle* (M_PI/180.0);
+    p[0] = (center[0] + (original_x - center[0]) * cos(rad_angle) - (original_y - center[1])*sin(rad_angle));
+    p[1] = (center[1] + (original_x - center[0]) * sin(rad_angle) + (original_y - center[1])*cos(rad_angle));
+
+    return 1;
+
+}
+
 
 double turtle_walk(double p [],double angle, char inst){
     G_rgb(0,1,0);
@@ -131,26 +164,6 @@ double turtle_walk(double p [],double angle, char inst){
 
 }
 
-int rotate_around_center(double center [], double p [], double angle){
-
-    /* rotation around a center is:
-    
-    p(x,y) -> 
-        x = (centerx + (x - centerx)cos(angle) - (y - centery)sin(angle))
-        y = (centery + (x - centerx)sin(angle) + (y - centery)cos(angle))
-
-    */
-
-    double original_x = p[0];
-    double original_y = p[1];
-    double rad_angle = angle* (M_PI/180.0);
-    p[0] = (center[0] + (original_x - center[0]) * cos(rad_angle) - (original_y - center[1])*sin(rad_angle));
-    p[1] = (center[1] + (original_x - center[0]) * sin(rad_angle) + (original_y - center[1])*cos(rad_angle));
-
-    return 1;
-
-}
-
 
 
 int main()
@@ -174,7 +187,6 @@ int main()
     //char instructions[1000] = "f+f+ff-f";
     //code to read in instructions
     char instructions[BUFFER_SIZE];
-    int depth = 4;
     //scanf("%s",instructions);
 
     //Things to keep in mind for later use:
@@ -192,9 +204,9 @@ int main()
     //populate production rules based on grammar
     grammar1(prods);
     //construct string by expanding grammar to a given depth
-    string_builder(instructions,depth,prods);
-
-    for(int i = 0; i < strlen(instructions); ++i){
+    string_builder(instructions,DEPTH,prods);
+    int inst_len = strlen(instructions);
+    for(int i = 0; i < inst_len; ++i){
         angle = turtle_walk(p,angle,instructions[i]);
         //printf("%c",instructions[i]);
     }
