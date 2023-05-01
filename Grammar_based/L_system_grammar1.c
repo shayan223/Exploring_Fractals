@@ -6,16 +6,16 @@
 double ANGLE_INTERVAL = 30; //quarter turn
 double FORWARD_DISTANCE = 1;
 double PROD_LEN = 10;
-
+long long BUFFER_SIZE = 600000;
 
 struct production{
     //Note for axiom: We hold the string "B" NOT the character 'B'
     char axiom [100];
     char rule [100];
     char var;
-} production;
+};
 
-int grammar1(production prd[]){
+int grammar1(struct production prd[]){
 
     /*
         Creates the following Grammar:
@@ -28,19 +28,19 @@ int grammar1(production prd[]){
     //one production per "rule" in the grammar
     //first production will ONLY have axiom
 
-    prd[0].axiom = "B";
+    strcpy(prd[0].axiom, "B");
 
     //Rule 1:
     prd[1].var = 'A';
-    prd[1].rule = "+A-C-A+";
+    strcpy(prd[1].rule, "+A-C-A+");
 
     //Rule 2:
     prd[2].var = 'B';
-    prd[2].rule = "B+C+B";
+    strcpy(prd[2].rule, "B+C+B");
 
     //rule 3:
     prd[3].var = 'C';
-    prd[3].rule = "A-C-A";
+    strcpy(prd[3].rule, "A-C-A");
 
     //record length of rules in global (axiom plus 1 for each rule)
     PROD_LEN = 4;
@@ -51,35 +51,53 @@ int grammar1(production prd[]){
 }
 
 //finds index of a given rule, -1 if terminal
-int find_rule(char prod_rule[], production prd[], int prd_len){
-    for(int i = 0; i < PROD_LEN; ++i){
+int find_rule(char prod_rule, struct production prd[], int prd_len){
+    for(int i = 1; i < PROD_LEN; ++i){
         //if rule is matched
-        if(strcmp(prd[i].var,prod_rule) == 0){
-            prod_rule = prd.rule;
+        //if(strcmp(prd[i].var,prod_rule) == 0){
+        if(prd[i].var == prod_rule){
+            return i;
         }
     }
+    //if none are found, return -1
+    return -1;
 }
 
 
 //generates a string of the grammar expanded to the given depth, represents our grammar
 //Expands Axiom to a certain depth.
-int string_builder(char instructions[], int depth, production prd[]){
+int string_builder(char instructions [], int depth, struct production prd[]){
     int iter = 0;
+    char temp[BUFFER_SIZE];
     char cur_rule[100];
-
     //string starts with axiom at depth 0
-    instructions = prd[0].axiom;
+    strcpy(instructions,prd[0].axiom);
 
     //at every depth level, loop through the string and expand it
     while(iter < depth){
-        for (int i = 0; i < strlen(instructions); ++i);
+        //reset temp at every loop
+        strcpy(temp, "\0");
+        int rule_index = 0;
+        int inst_len = strlen(instructions);
+        for (int i = 0; i < inst_len; ++i)
         {
-            cur_rule = instructions[i];
-            find_rule(cur_rule,prd);
+            //lookup and concat expanded terms
+            rule_index = find_rule(instructions[i],prd,PROD_LEN);
+            if(rule_index >= 0){
+                strcat(temp,prd[rule_index].rule);
+            }
+            //simply copy terminals directly
+            else{
+                strcat(temp,&instructions[i]);
+            }
         }
+
+        //copy over expanded version of string back to its original array
+        strcpy(instructions,temp);
 
         iter++;
     }
+    return 0;
 
 }
 
@@ -149,14 +167,14 @@ int main()
     G_clear () ;
 
     double p [2];
-    p[0] = 100; // turtle starting x
-    p[1] = 10; // turtle starting y
+    p[0] = 300; // turtle starting x
+    p[1] = 300; // turtle starting y
     double angle = 0; //turtle starting angle (horizontal to the right)
 
     //char instructions[1000] = "f+f+ff-f";
     //code to read in instructions
-    char instructions[1000000];
-    int depth = 0;
+    char instructions[BUFFER_SIZE];
+    int depth = 4;
     //scanf("%s",instructions);
 
     //Things to keep in mind for later use:
@@ -170,15 +188,15 @@ int main()
         strcat(u,v); // results in "dogpig"
     */
 
-    production prods[10];
+    struct production prods[10];
     //populate production rules based on grammar
     grammar1(prods);
     //construct string by expanding grammar to a given depth
-
+    string_builder(instructions,depth,prods);
 
     for(int i = 0; i < strlen(instructions); ++i){
         angle = turtle_walk(p,angle,instructions[i]);
-        printf("%f",angle);
+        //printf("%c",instructions[i]);
     }
 
 
