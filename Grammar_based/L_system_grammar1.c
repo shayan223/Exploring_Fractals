@@ -3,6 +3,7 @@
 #include  "FPToolkit.c"
 #include <math.h>
 
+double ANGLE_START = 0;
 double ANGLE_INTERVAL = 30; //quarter turn
 double FORWARD_DISTANCE = 1;
 double PROD_LEN = 10;
@@ -161,7 +162,11 @@ double turtle_walk(double p [],double angle, char inst){
 }
 
 
-int autoplacer(double p[]){
+int autoplacer(double p[],char instructions[],double swidth,double sheight){
+    double starting_px, starting_py;
+    double angle = ANGLE_START;
+    starting_px = p[0];
+    starting_py = p[1];
     int inst_len = strlen(instructions);
     //do first run through
     for(int i = 0; i < inst_len; ++i){
@@ -183,7 +188,8 @@ int autoplacer(double p[]){
     // clear the screen
     G_rgb (0.3, 0.3, 0.3) ; // dark gray
     G_clear () ;
-
+    //reset angle
+    angle = ANGLE_START;
     //update and scale movement length and starting position
     double delta_x, delta_y, scale_factor;
     delta_x = MAX_X - MIN_X;
@@ -201,7 +207,14 @@ int autoplacer(double p[]){
 
     //shift starting point to center drawing
 
-    double new_x, new_y;
+    double center_x,center_y,new_x, new_y;
+    //find the centroid for the initial shape
+    center_x = (MAX_X + MIN_X) / 2;
+    center_y = (MAX_Y + MIN_Y) / 2;
+
+    //adjust starting point to center the centroid of the resulting shape
+    p[0] = (swidth/2 - center_x)*scale_factor;
+    p[1] = (sheight/2 - center_y)*scale_factor;
 
     //redraw
     for(int i = 0; i < inst_len; ++i){
@@ -227,7 +240,7 @@ int main()
     double p [2];
     p[0] = 100; // turtle starting x
     p[1] = 10; // turtle starting y
-    double angle = 0; //turtle starting angle (horizontal to the right)
+    double angle = ANGLE_START; //turtle starting angle (horizontal to the right)
 
     //char instructions[1000] = "f+f+ff-f";
     //code to read in instructions
@@ -257,7 +270,7 @@ int main()
     MIN_Y = p[1];
     MAX_Y = p[1];
 
-    autoplacer(p);
+    autoplacer(p,instructions,swidth,sheight);
 
 
     int key ;   
