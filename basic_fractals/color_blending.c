@@ -4,6 +4,7 @@
 #include <math.h>
 
 double parametric(double x0, double x1, double t, double power){
+    //default power should be 1
     return x0 + pow(t,power)*(x1 - x0);
 }
 
