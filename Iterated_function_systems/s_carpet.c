@@ -3,7 +3,7 @@
 #include  "FPToolkit.c"
 #include <math.h>
 
-
+ double SQ_SIZE = 100; //initial square size
 
 double parametric(double x0, double x1, double t, double power){
     //default power should be 1
@@ -35,7 +35,7 @@ int translate(double p[],delta_x,delta_y){
     p[1] += delta_y;
 
     return 1;
-    
+
 }
 
 
@@ -59,7 +59,33 @@ int rotate(double center [], double p [], double angle){
 
 }
 
-int rule1(double p[]){
+
+/***********************************
+
+9 total rules for the sierpinsky carpet
+
+    1 | 2 | 3
+    4 | 5 | 6
+    7 | 8 | 9
+
+
+parent space is unit square
+1. pick a random point in that square
+2. apply transformation of rules (randomly)
+
+
+Origin of each sub square is in the bottom left
+
+*************************************/
+int rule1(double parent[], double child[]){
+
+    //scale down
+    scale(parent,p,1.0/3.0);
+    //translate to the top left of the parent
+    double delta_x = 0;
+    double delta_y = parent[]
+    translate(p,)
+
 
     return 0;
 }
