@@ -3,7 +3,9 @@
 #include  "FPToolkit.c"
 #include <math.h>
 
- double SQ_SIZE = 100; //initial square size
+double SQ_SIZE = 600; //initial square size
+double ITERS = 1000000;
+
 
 double parametric(double x0, double x1, double t, double power){
     //default power should be 1
@@ -14,22 +16,26 @@ double parametric(double x0, double x1, double t, double power){
 //transformations which will be applied in the following order:
 // 1. scale     2. translate    3. rotate
 
-//modifies p2 to scale up or down from p1
-int scale(double p1[], double p2[], double scale_factor){
+//cales values of a point
+int scale(double p[], double scale_factor){
 
-    double new_x,new_y;
+    /*double new_x,new_y;
 
     new_x = parametric(p1[0],p2[0],scale_factor,1);
     new_y = parametric(p1[1],p2[1],scale_factor,1);
 
     p2[0] = new_x;
     p2[1] = new_y;
+    */
+
+    p[0] *= scale_factor;
+    p[1] *= scale_factor;
 
     return 1;
 
 }
 
-int translate(double p[],delta_x,delta_y){
+int translate(double p[],double delta_x,double delta_y){
 
     p[0] += delta_x;
     p[1] += delta_y;
@@ -77,19 +83,106 @@ parent space is unit square
 Origin of each sub square is in the bottom left
 
 *************************************/
-int rule1(double parent[], double child[]){
+int rule1(double p[]){
 
     //scale down
-    scale(parent,p,1.0/3.0);
+    scale(p,1.0/3.0);
     //translate to the top left of the parent
-    double delta_x = 0;
-    double delta_y = parent[]
-    translate(p,)
+    double delta_x = 0.0;
+    double delta_y = SQ_SIZE*(2.0/3.0); //move up 2 thirds the way
+    translate(p,delta_x,delta_y);
 
 
     return 0;
 }
 
+int rule2(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate to the top center of the parent
+    double delta_x = SQ_SIZE*(1.0/3.0); // move over 1 third the way
+    double delta_y = SQ_SIZE*(2.0/3.0); //move up 2 thirds the way
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule3(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = SQ_SIZE*(2.0/3.0); // move over 2 thirds the way
+    double delta_y = SQ_SIZE*(2.0/3.0); //move up 2 thirds the way
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule4(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = 0;
+    double delta_y = SQ_SIZE*(1.0/3.0); 
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule5(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = SQ_SIZE*(1.0/3.0);
+    double delta_y = SQ_SIZE*(1.0/3.0); 
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule6(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = SQ_SIZE*(2.0/3.0);
+    double delta_y = SQ_SIZE*(1.0/3.0); 
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule7(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = 0;
+    double delta_y = 0; 
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule8(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = SQ_SIZE*(1.0/3.0);
+    double delta_y = 0; 
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
+
+int rule9(double p[]){
+    //scale down
+    scale(p,1.0/3.0);
+    //translate 
+    double delta_x = SQ_SIZE*(2.0/3.0);
+    double delta_y = 0; 
+    translate(p,delta_x,delta_y);
+
+    return 0;
+}
 
 
 int main()
@@ -104,13 +197,28 @@ int main()
     // clear the screen in a given color
     G_rgb (0.3, 0.3, 0.3) ; // dark gray
     G_clear () ;
-
+    G_rgb (0,1,0);
     double p [2];
     p[0] = 100; // starting x
     p[1] = 10; // starting y
 
-    double n;
+    //double n_iters = ITERS;
+    srand(time(NULL));
+    int choice = 0;
+    for(int i=0; i< ITERS; ++i){
+        choice = rand() % 8;
+        if(choice == 0) rule1(p);
+        if(choice == 1) rule2(p);
+        if(choice == 2) rule3(p);
+        if(choice == 3) rule4(p);
+        //note, we exclude rule 5
+        if(choice == 4) rule6(p);
+        if(choice == 5) rule7(p);
+        if(choice == 6) rule8(p);
+        if(choice == 7) rule9(p);
 
+        G_point (p[0], p[1]);
+    }
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
