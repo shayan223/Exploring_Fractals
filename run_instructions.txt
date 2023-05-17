@@ -1,3 +1,13 @@
+Install: 
+
+follow this: https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps
+
+and do these:
+
+sudo  apt-get  install  libx11-dev     
+
+sudo  apt-get  install  xorg-dev
+
 compile with:
 
 cc FPToolkitDemoB.c -lm -lX11
