@@ -239,5 +239,5 @@ int test_pyramid_rotate()
 int main()
 {
   test_pyramid() ;
-  //  test_pyramid_rotate() ;
+  test_pyramid_rotate() ;
 }

@@ -3,11 +3,11 @@
 #include  "FPToolkit.c"
 #include <math.h>
 
-double ANGLE_START = 90;
-double ANGLE_INTERVAL = 22.5; //quarter turn
-double FORWARD_DISTANCE = 1;
+double ANGLE_START = 90;//quarter turn
+double ANGLE_INTERVAL = 22.5; 
+double FORWARD_DISTANCE = 10;
 double PROD_LEN = 10;
-double DEPTH = 7;
+double DEPTH = 5;
 long long BUFFER_SIZE = 500000;
 double MIN_X,MIN_Y,MAX_X,MAX_Y;
 enum { STACK_SIZE = 100000 };
@@ -259,6 +259,9 @@ int autoplacer(double p[],char instructions[],double swidth,double sheight){
     //p[1] = 0 + p[1]*scale_factor;
     printf("New starting position scaled (factor: %f): (%f,%f)\n", scale_factor,p[0],p[1]);
 
+    //temporary while autoplacer is broken
+    p[0] = 400;
+    p[1] = 50;
     //redraw
     for(int i = 0; i < inst_len; ++i){
         angle = turtle_walk(p,angle,instructions[i]);
@@ -266,6 +269,17 @@ int autoplacer(double p[],char instructions[],double swidth,double sheight){
 
 }
 
+void basic_walk(double p[],char instructions[]){
+    p[0] = 400;
+    p[1] = 50;
+    double angle = ANGLE_START;
+    int inst_len = strlen(instructions);
+
+    //redraw
+    for(int i = 0; i < inst_len; ++i){
+        angle = turtle_walk(p,angle,instructions[i]);
+    }
+}
 
 int main()
 {
@@ -313,11 +327,17 @@ int main()
     MIN_Y = p[1];
     MAX_Y = p[1];
 
-    autoplacer(p,instructions,swidth,sheight);
-
-
-    int key ;   
+    int key = 0;
+    while(key != 113){
+    ANGLE_INTERVAL += 1;
+    //autoplacer(p,instructions,swidth,sheight);
+    G_rgb (0.3, 0.3, 0.3) ; // dark gray
+    G_clear () ;
+    G_rgb(0,1,0);
+    basic_walk(p,instructions);
     key =  G_wait_key() ; // pause so user can see results
+
+    }
 
     return 0;
 }
