@@ -190,10 +190,85 @@ int build_pyramid()
 }
 
 
+int build_cube(){
+  int n,k ;
+  double a,x[100],z[100],yv ;
+
+  N = 0 ; // global
+  
+  n = 4 ;
+  double base_start = -1;
+  double side_len = 2;
+  double per_side_angle = (360/n)*(M_PI/180.0);
+  double radius = side_len/2.0;
+  double cur_angle = 0;
+  for (k = 0; k <= n ; k++) {
+    x[k] = radius*cos(cur_angle) ;
+    z[k] = radius*sin(cur_angle) ;
+    cur_angle += per_side_angle;
+  }
+
+  //yv = base_start+side_len ;
+  //to create square, height should be the same as side lengths
+  yv = sqrt(pow(x[1] - x[0],2) + pow(z[1] - z[0],2));
+  base_start = 0 - yv/2.0;
+
+  printf("Starting y: %f, top of shape: %f, radius: %f \n",base_start,yv,radius);
+  printf("Starting y: %f, top of shape: %f, radius: %f",base_start,yv,radius);
+
+  for (k = 0; k < n ; k++) {
+    //save_line(0,2,0,  x[k],yv,z[k]) ;
+    //save_line(x[k],yv,z[k],    x[k+1],yv,z[k+1]) ;
+    //connect a point to its next around the base
+    save_line(x[k],base_start,z[k],    x[k+1],base_start,z[k+1]);
+    //connect each point with the one above it
+    save_line(x[k],base_start,z[k],    x[k],base_start+yv,z[k]);
+    //connect each above point to the one next to it
+    save_line(x[k],base_start+yv,z[k],    x[k+1],base_start+yv,z[k+1]);
+    //connect first and last sides
+    if(k == n-1){ 
+      save_line(x[k],base_start,z[k],    x[0],base_start,z[0]); //bottom points
+      save_line(x[k],base_start+yv,z[k],    x[0],base_start+yv,z[0]); //top points
+    }
+  }  
+
+  
 
 
+}
 
 
+int test_cube(){
+  G_init_graphics(Wsize,Wsize) ;
+  G_rgb(0,0,0) ;
+  G_clear() ;
+  G_rgb(0,1,0) ;
+
+  build_cube() ;
+  project(3,45) ;
+  draw() ;
+  print_object() ;
+  
+  G_wait_key() ;
+}
+
+int test_cube_rotate(){
+  //  G_choose_repl_display() ; // not too bad as a repl movie
+  G_init_graphics(Wsize,Wsize) ;
+
+  build_cube() ;
+  
+  while (1) {
+    G_rgb(0,0,0) ;
+    G_clear() ;
+    G_rgb(0,1,0) ;
+    project(3,45) ;
+    draw() ;
+    rotate_y(2) ;  
+    if (G_wait_key() == 'q') { break ; }
+  }
+  
+}
 
 
 int test_pyramid()
@@ -238,6 +313,8 @@ int test_pyramid_rotate()
 
 int main()
 {
-  test_pyramid() ;
-  test_pyramid_rotate() ;
+  //test_pyramid() ;
+  //test_pyramid_rotate() ;
+  //test_cube();
+  test_cube_rotate();
 }
