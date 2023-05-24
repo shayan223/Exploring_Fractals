@@ -195,7 +195,7 @@ int build_cube(){
   double a,x[100],z[100],yv ;
 
   N = 0 ; // global
-  
+  //NOTE: Can change to any n sided square-like-shape
   n = 4 ;
   double base_start = -1;
   double side_len = 2;
