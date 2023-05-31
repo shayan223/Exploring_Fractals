@@ -8,9 +8,11 @@
 #include <ctype.h>
 #include "FPToolkit.c"
 
-int ITERS = 1000;
+
 int SWIDTH = 800;
 int SHEIGHT = 800;
+
+int ITERS = 100;
 double MIN_TEST = -2;
 double MAX_TEST = 2;
 
@@ -68,10 +70,13 @@ int test_z(double real, double complex_coef){
 
 int main()
 {
+    G_init_graphics (SWIDTH,SHEIGHT) ;
+
     double converge_color [] = {102/255.0, 51/255.0, 153/255.0};
     double diverge_color [] = {34/255.0, 39/255.0, 122/255.0};
     //one interval for a square screen
-    double test_interval = (abs(MAX_TEST) + abs(MIN_TEST))/SWIDTH;
+    double test_interval = (abs(MAX_TEST) + abs(MIN_TEST))/(double)SWIDTH;
+    printf("Interval for window: %f \n",test_interval);
     double cur_real = MIN_TEST;
     double cur_complex = MIN_TEST;
     int does_converge = 0;
@@ -84,7 +89,6 @@ int main()
             cur_real = MIN_TEST+(x*test_interval);
             cur_complex = MIN_TEST+(y*test_interval);
             does_converge = test_z(cur_real,cur_complex);
-
             if(does_converge){
                 G_rgb(converge_color[0],converge_color[1],converge_color[2]);
                 G_point(x,y);
