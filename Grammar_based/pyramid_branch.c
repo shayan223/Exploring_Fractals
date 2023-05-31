@@ -3,11 +3,15 @@
 #include  "FPToolkit.c"
 #include <math.h>
 
+// must do this before you do 'almost' any other graphical tasks 
+int swidth = 800;
+int sheight = 800;
+
 double ANGLE_START = 90;//quarter turn
-double ANGLE_INTERVAL = 22.5; 
-double FORWARD_DISTANCE = 10;
+double ANGLE_INTERVAL = 119;//22.5; 
+double FORWARD_DISTANCE = 6;
 double PROD_LEN = 10;
-double DEPTH = 5;
+double DEPTH = 6;
 long long BUFFER_SIZE = 500000;
 double MIN_X,MIN_Y,MAX_X,MAX_Y;
 enum { STACK_SIZE = 100000 };
@@ -15,6 +19,47 @@ double STACK_X [STACK_SIZE];
 double STACK_Y [STACK_SIZE];
 double STACK_A [STACK_SIZE]; //stack for angle
 int TOP_X = 0, TOP_Y = 0, TOP_A = 0;
+
+
+double parametric(double x0, double x1, double t, double power){
+    //default power should be 1
+    return x0 + pow(t,power)*(x1 - x0);
+}
+
+void draw_background(double c_start [], double c_end []){
+    
+    
+    double r,g,b;
+    double r_pow = 1;
+    double g_pow = 1;
+    double b_pow = 1;
+    double cur_height;
+
+    double sand [] = {168/255.0,143/255.0,89/255.0};//sand color
+    double sun [] = {254/255.0,76/255.0,64/255.0};//sand color
+
+    for (double t = 0.0; t <= 1.0; t+=0.001){
+        r = parametric(c_start[0],c_end[0],t,r_pow);
+        g = parametric(c_start[1],c_end[1],t,g_pow);
+        b = parametric(c_start[2],c_end[2],t,b_pow);
+        G_rgb(r,g,b);
+        //draws top half of horizon
+        cur_height = sheight/2 + parametric(0,sheight/2,t,1);
+        G_line(0, cur_height, swidth, cur_height);
+
+    }
+    //Place sun
+    G_rgb(sun[0],sun[1],sun[2]);
+    G_fill_circle (100, 400, 75) ;
+
+
+    for (double t = 0.0; t <= 1.0; t+=0.001){
+        //draw bottom half of horizon
+        G_rgb(sand[0],sand[1],sand[2]);
+        cur_height = parametric(0,sheight/2,t,1);
+        G_line(0, cur_height, swidth, cur_height);
+    }
+}
 
 struct production{
     //Note for axiom: We hold the string "B" NOT the character 'B'
@@ -270,8 +315,8 @@ int autoplacer(double p[],char instructions[],double swidth,double sheight){
 }
 
 void basic_walk(double p[],char instructions[]){
-    p[0] = 400;
-    p[1] = 50;
+    p[0] = 600;
+    p[1] = 125;
     double angle = ANGLE_START;
     int inst_len = strlen(instructions);
 
@@ -283,10 +328,7 @@ void basic_walk(double p[],char instructions[]){
 
 int main()
 {
-    int    swidth, sheight ;
-    
-    // must do this before you do 'almost' any other graphical tasks 
-    swidth = 800 ;  sheight = 800 ;
+
     G_init_graphics (swidth,sheight) ;  // interactive graphics
 
     
@@ -327,6 +369,9 @@ int main()
     MIN_Y = p[1];
     MAX_Y = p[1];
 
+    double sunset_start [] = {255/255.0, 255/255.0, 76/255.0}; 
+    double sunset_end [] = {136/255.0, 60/255.0, 119/255.0};
+
     int key = 0;
     while(key != 113){
     if(key == 106){//rotate left with 'j' key
@@ -339,8 +384,10 @@ int main()
         ANGLE_INTERVAL += 1;
     }
     //autoplacer(p,instructions,swidth,sheight);
-    G_rgb (0.3, 0.3, 0.3) ; // dark gray
-    G_clear () ;
+    //G_rgb (0.3, 0.3, 0.3) ; // dark gray
+    //G_clear () ;
+    draw_background(sunset_end,sunset_start);
+
     G_rgb(0,1,0);
     basic_walk(p,instructions);
     printf("Current Angle Interval: %f\n", ANGLE_INTERVAL);
