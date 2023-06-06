@@ -100,8 +100,8 @@ int main()
         
 
         //one interval for a square screen
-        double test_interval_x = (abs(MAX_TEST_r) + abs(MIN_TEST_r))/(double)SWIDTH;
-        double test_interval_y = (abs(MAX_TEST_c) + abs(MIN_TEST_c))/(double)SHEIGHT;
+        double test_interval_x = (fabs(MAX_TEST_r - MIN_TEST_r))/(double)SWIDTH;
+        double test_interval_y = (fabs(MAX_TEST_c - MIN_TEST_c))/(double)SHEIGHT;
 
         printf("Intervals for window: x:%f   y:%f\n",test_interval_x,test_interval_y);
         printf("Window bounds:  xmin: %f   xmax: %f    ymin: %f   ymax: %f    \n",MIN_TEST_r,MAX_TEST_r,MIN_TEST_c,MAX_TEST_c);
@@ -180,7 +180,7 @@ int main()
         MAX_TEST_c = center_complex + window_width_x;
 
         printf("WINDOW_WIDTH_x: %f \n",window_width_x);
-
+        ITERS = ITERS * 5;
 
         //key =  G_wait_key() ; // pause so user can see results
     }
