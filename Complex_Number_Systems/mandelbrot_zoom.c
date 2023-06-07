@@ -13,12 +13,13 @@ int SWIDTH = 800;
 int SHEIGHT = 800;
 
 int ITERS = 100;
-double MIN_TEST_r = -2;
-double MAX_TEST_r = 0.0;
+double MIN_TEST_r = -4;
+double MAX_TEST_r = -2;
 double MIN_TEST_c = -1;
 double MAX_TEST_c = 1;
-double ZOOM_RATE = 0.6;
+double ZOOM_RATE = 0.8;
 int RECORDING_LENGTH = 100;
+double color_oscilations = 4.0;
 
 void prcmx (char *control, complex c)
 //print complex number
@@ -83,20 +84,39 @@ int test_z(double real, double complex_coef){
     return i;
 }
 
+
+void adjust_colors(double cur_color [], double c1 [], double c2 [], double t){
+
+    double r = parametric(c1[0],c2[0],t,1);
+    double g = parametric(c1[1],c2[1],t,1);
+    double b = parametric(c1[2],c2[2],t,1);
+
+    cur_color[0] = r;
+    cur_color[1] = g;
+    cur_color[2] = b;
+
+
+}
+
 int main()
 {
     G_init_graphics (SWIDTH,SHEIGHT) ;
 
+    double converge_1 [] = {102/255.0, 51/255.0, 153/255.0};
+    double diverge_1 [] = {34/255.0, 39/255.0, 122/255.0};
+    double converge_2 [] = {201/255.0, 24/255.0, 83/255.0};//sunset purple
+    double diverge_2 [] = {255/255.0, 206/255.0, 97/255.0};//sunset yellow
+
     double converge_color [] = {102/255.0, 51/255.0, 153/255.0};
     double diverge_color [] = {34/255.0, 39/255.0, 122/255.0};
-    double c1 [] = {1, 0, 0};
-    double c2 [] = {0, 1, 0};
-    double c3 [] = {0, 0, 1};
 
     int key ;   
     double center[2], width[2];
+    double t_interval = 1.0/((double)RECORDING_LENGTH/color_oscilations);
+    double t = 0.0;
     double iter_scaling = 0.0;
     double window_width_x, window_width_y, center_real, center_complex, width_real, width_complex ;
+    int increasing_interval = 1;
     center_real = -1.5;
     center_complex = 0.0;
 
@@ -107,7 +127,7 @@ int main()
     int frames = 0;
     while(frames < RECORDING_LENGTH){
         
-        
+        printf("Window bounds:  xmin: %f   xmax: %f    ymin: %f   ymax: %f    \n",MIN_TEST_r,MAX_TEST_r,MIN_TEST_c,MAX_TEST_c);
 
         //one interval for a square screen
         double test_interval_x = (fabs(MAX_TEST_r - MIN_TEST_r))/(double)SWIDTH;
@@ -117,8 +137,8 @@ int main()
         double cur_complex = MIN_TEST_c;
         int does_converge = 0;
 
-        G_rgb(0.3,0.3,0.3);
-        G_clear();
+        //G_rgb(0.3,0.3,0.3);
+        //G_clear();
 
         int reps = 0;
         double color_scale = 0;
@@ -146,21 +166,46 @@ int main()
 
 
         
-        width_real = width_real * ZOOM_RATE;
-        width_complex = width_complex * ZOOM_RATE;
+        //width_real = width_real * ZOOM_RATE;
+        //width_complex = width_complex * ZOOM_RATE;
         //scale up iterations per pixel as we zoom in
         iter_scaling = 1 + (1 - ZOOM_RATE);
 
         //compute the new starting min and max values based on the center
-        window_width_x = fabs((center_real - width_real));
-        window_width_y = fabs(center_complex - width_complex);
-        MIN_TEST_r = center_real - window_width_x;
-        MAX_TEST_r = center_real + window_width_x;
+        //window_width_x = fabs((center_real - width_real));
+        //window_width_y = fabs(center_complex - width_complex);
+        //MIN_TEST_r = center_real - window_width_x;
+        //MAX_TEST_r = center_real + window_width_x;
 
-        MIN_TEST_c = center_complex - window_width_x;
-        MAX_TEST_c = center_complex + window_width_x;
+        //MIN_TEST_c = center_complex - window_width_x;
+        //MAX_TEST_c = center_complex + window_width_x;
 
-        ITERS = ITERS * iter_scaling ;
+        MIN_TEST_r *= ZOOM_RATE;
+        MAX_TEST_r *= ZOOM_RATE;
+
+        MIN_TEST_c *= ZOOM_RATE;
+        MAX_TEST_c *= ZOOM_RATE;
+
+
+        //update convergence and divergence colors, oscilating between the two color sets
+        adjust_colors(converge_color,converge_1,converge_2,t);
+        adjust_colors(diverge_color,diverge_1,diverge_2,t);
+        
+        if(increasing_interval){
+            t += t_interval;
+            if(t > 1){
+                increasing_interval = 0;
+            }
+        }
+        else{
+            t -= t_interval;
+            if(t < 0){
+                increasing_interval = 1;
+            }
+        }
+
+        //increase iterations as we zoom in
+        //ITERS = ITERS * iter_scaling ;
 
         //save frame and iterate frame count
         int n = snprintf(fname, 99,"./frames/img%04d.bmp", frames);
