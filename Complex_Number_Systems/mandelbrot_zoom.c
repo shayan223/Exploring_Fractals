@@ -13,10 +13,14 @@ int SWIDTH = 800;
 int SHEIGHT = 800;
 
 int ITERS = 100;
-double MIN_TEST_r = -4;
-double MAX_TEST_r = -2;
-double MIN_TEST_c = -1;
-double MAX_TEST_c = 1;
+
+double WIN_RADIUS = 1;
+double CENTER_R = -1.5;
+double CENTER_C = 0.0;
+double MIN_TEST_r = 0.0;
+double MAX_TEST_r = 0.0;
+double MIN_TEST_c = 0.0;
+double MAX_TEST_c = 0.0;
 double ZOOM_RATE = 0.8;
 int RECORDING_LENGTH = 100;
 double color_oscilations = 4.0;
@@ -102,6 +106,16 @@ int main()
 {
     G_init_graphics (SWIDTH,SHEIGHT) ;
 
+
+    //center using euler's number to approach the famous seahorse valley
+    CENTER_R = -1*(exp(1)/7.0);
+    CENTER_C = -1*(exp(1)/20.0);
+
+    MIN_TEST_r = CENTER_R - WIN_RADIUS;
+    MAX_TEST_r = CENTER_R + WIN_RADIUS;
+    MIN_TEST_c = CENTER_C - WIN_RADIUS;
+    MAX_TEST_c = CENTER_C + WIN_RADIUS;
+
     double converge_1 [] = {102/255.0, 51/255.0, 153/255.0};
     double diverge_1 [] = {34/255.0, 39/255.0, 122/255.0};
     double converge_2 [] = {201/255.0, 24/255.0, 83/255.0};//sunset purple
@@ -179,12 +193,11 @@ int main()
 
         //MIN_TEST_c = center_complex - window_width_x;
         //MAX_TEST_c = center_complex + window_width_x;
-
-        MIN_TEST_r *= ZOOM_RATE;
-        MAX_TEST_r *= ZOOM_RATE;
-
-        MIN_TEST_c *= ZOOM_RATE;
-        MAX_TEST_c *= ZOOM_RATE;
+        WIN_RADIUS *= ZOOM_RATE;
+        MIN_TEST_r = CENTER_R - WIN_RADIUS;
+        MAX_TEST_r = CENTER_R + WIN_RADIUS;
+        MIN_TEST_c = CENTER_C - WIN_RADIUS;
+        MAX_TEST_c = CENTER_C + WIN_RADIUS;
 
 
         //update convergence and divergence colors, oscilating between the two color sets
