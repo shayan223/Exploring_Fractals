@@ -108,8 +108,8 @@ int main()
 
 
     //center using euler's number to approach the famous seahorse valley
-    CENTER_R = -1*(exp(1)/7.0);
-    CENTER_C = -1*(exp(1)/20.0);
+    CENTER_R = -0.74453986035590838012  ;
+    CENTER_C = -0.12172377389442482241 ;
 
     MIN_TEST_r = CENTER_R - WIN_RADIUS;
     MAX_TEST_r = CENTER_R + WIN_RADIUS;
