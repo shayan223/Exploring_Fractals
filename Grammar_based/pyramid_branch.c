@@ -35,8 +35,8 @@ void draw_background(double c_start [], double c_end []){
     double b_pow = 1;
     double cur_height;
 
-    double sand [] = {168/255.0,143/255.0,89/255.0};//sand color
-    double sun [] = {254/255.0,76/255.0,64/255.0};//sand color
+    double sand [] = {139/255.0,128/255.0,0/255.0};//sand color
+    double sun [] = {254/255.0,76/255.0,64/255.0};
 
     for (double t = 0.0; t <= 1.0; t+=0.001){
         r = parametric(c_start[0],c_end[0],t,r_pow);
@@ -209,7 +209,7 @@ int rotate_around_center(double center [], double p [], double angle){
 
 
 double turtle_walk(double p [],double angle, char inst){
-    G_rgb(0,1,0);
+    //G_rgb(0,1,0);
     //holds on to original p values
     double p_temp[2];
     p_temp[0] = p[0];
@@ -341,21 +341,7 @@ int main()
     p[1] = 10; // turtle starting y
     double angle = ANGLE_START; //turtle starting angle (horizontal to the right)
 
-    //char instructions[1000] = "f+f+ff-f";
-    //code to read in instructions
     char instructions[BUFFER_SIZE];
-    //scanf("%s",instructions);
-
-    //Things to keep in mind for later use:
-    /*
-        char u[1000000];
-        char v[1000000];
-        v[0] = '\0';
-        u[0] = '\0';
-        strcpy(u, "dog");
-        strcpy(v, "pig");
-        strcat(u,v); // results in "dogpig"
-    */
 
     struct production prods[10];
     //populate production rules based on grammar
@@ -371,9 +357,10 @@ int main()
 
     double sunset_start [] = {255/255.0, 255/255.0, 76/255.0}; 
     double sunset_end [] = {136/255.0, 60/255.0, 119/255.0};
+    double pyramid_color [] = {255/255.0, 255/255.0, 0/255.0};
 
     int key = 0;
-    while(key != 113){
+    //while(key != 113){
     if(key == 106){//rotate left with 'j' key
         ANGLE_INTERVAL += 1;
     }
@@ -383,17 +370,17 @@ int main()
     else{//default movement to the left
         ANGLE_INTERVAL += 1;
     }
-    //autoplacer(p,instructions,swidth,sheight);
-    //G_rgb (0.3, 0.3, 0.3) ; // dark gray
-    //G_clear () ;
+
     draw_background(sunset_end,sunset_start);
 
-    G_rgb(0,1,0);
+    G_rgb(pyramid_color[0],pyramid_color[1],pyramid_color[2]);
     basic_walk(p,instructions);
     printf("Current Angle Interval: %f\n", ANGLE_INTERVAL);
     key =  G_wait_key() ; // pause so user can see results
 
-    }
+    G_save_to_bmp_file("pyramid.bmp");
+
+   // }
 
     return 0;
 }
