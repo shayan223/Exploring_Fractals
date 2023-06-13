@@ -1,3 +1,16 @@
+
+
+To compile animation frames:
+
+sudo apt install imagemagick
+sudo apt install ffmpeg
+*store bmp image files in the "frame" directory when running the script generating the frames*
+cd into /frames
+run: 
+	convert *.bmp image%d.jpg
+run the following to generate the animation
+	ffmpeg -framerate 30 -i image%d.jpg -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p my_movie_name.mp4
+
 Install: 
 
 follow this: https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps

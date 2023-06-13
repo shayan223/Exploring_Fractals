@@ -3,6 +3,11 @@
 #include <math.h>
 
 
+int swidth = 800;
+int sheight  = 800;
+int RECORDING_LENGTH = 200;
+
+
 int point_along_line(double x0, double y0, double x1, double y1, double t, double point []){
 
     double y_val, x_val;
@@ -119,9 +124,46 @@ double parametric(double x0, double x1, double t, double power){
     return x0 + pow(t,power)*(x1 - x0);
 }
 
+void draw_background(double c_start [], double c_end []){
+    
+    
+    double r,g,b;
+    double r_pow = 1;
+    double g_pow = 1;
+    double b_pow = 1;
+    double cur_height;
+
+    //Color for grass background
+    double grass [] = {0/255.0,154/255.0,23/255.0};
+    //generic sun yellow
+    double sun [] = {249/255.0,215/255.0,28/255.0};
+
+    for (double t = 0.0; t <= 1.0; t+=0.001){
+        r = parametric(c_start[0],c_end[0],t,r_pow);
+        g = parametric(c_start[1],c_end[1],t,g_pow);
+        b = parametric(c_start[2],c_end[2],t,b_pow);
+        G_rgb(r,g,b);
+        //draws top half of horizon
+        cur_height = sheight/2 + parametric(0,sheight/2,t,1);
+        G_line(0, cur_height, swidth, cur_height);
+
+    }
+    //Place sun
+    G_rgb(sun[0],sun[1],sun[2]);
+    G_fill_circle (100, 600, 75) ;
+
+
+    for (double t = 0.0; t <= 1.0; t+=0.001){
+        //draw bottom half of horizon
+        G_rgb(grass[0],grass[1],grass[2]);
+        cur_height = parametric(0,sheight/2,t,1);
+        G_line(0, cur_height, swidth, cur_height);
+    }
+}
+
 int main()
 {
-    int    swidth, sheight ;
+
     double lowleftx, lowlefty, width, height ;
     double x[10], y[10] ;
     double numxy ;
@@ -129,7 +171,7 @@ int main()
 
     
     // must do this before you do 'almost' any other graphical tasks 
-    swidth = 800 ;  sheight = 800 ;
+    
     G_init_graphics (swidth,sheight) ;  // interactive graphics
 
     
@@ -137,17 +179,21 @@ int main()
     G_rgb (0.3, 0.3, 0.3) ; // dark gray
     G_clear () ;
 
+    int startingx = 350;
+    int startingy = 250;
+    double sky [] = {135/255.0,206/255.0,235/255.0};
+
 
     //Color blending variables
-    //starting color
-    double sr = 128/255.0;
-    double sg = 0/255.0;
-    double sb = 128/255.0;
+    //starting color (dark green)
+    double sr = 5/255.0;
+    double sg = 102/255.0;
+    double sb = 8/255.0;
 
-    //ending color
-    double er = 64/255.0;
-    double eg = 224/255.0;
-    double eb = 208/255.0;
+    //ending color (wood brown)
+    double er = 139/255.0;
+    double eg = 69/255.0;
+    double eb = 19/255.0;
     
     double r,g,b;
     double r_pow = 1; //3
@@ -169,11 +215,14 @@ int main()
     double angle = angle_min;
     int direction = 0;
 
-
+    char fname[100];//holds on to animation frames
+    int frames = 0;
     //Press and hold key to run, q to quit
-    while(key != 113)
+    while(frames < RECORDING_LENGTH)
     {
         //determine color for this iteration
+
+        draw_background(sky,sky);
 
         color_scaling = (angle - angle_min) / (angle_max - angle_min);
 
@@ -196,11 +245,23 @@ int main()
             }
         }
 
-        pythag_triangle(400,50,400+box_width,50,depth,1,angle,box_width,box_height);
-        key =  G_wait_key() ; // pause so user can see results
-        //clear screen for next frame
-        G_rgb (0.3, 0.3, 0.3) ; // dark gray
-        G_clear () ;
+        pythag_triangle(startingx,startingy,startingx+box_width,startingy,depth,1,angle,box_width,box_height);
+        //key =  G_wait_key() ; // pause so user can see results
+        //generate background for next frame
+        
+        //save frame and iterate frame count
+        int n = snprintf(fname, 99,"./frames/img%04d.bmp", frames);
+
+        if(n > -1 && n < 99){
+        int fp = fopen(fname, "w");
+        }else{
+            printf("Error saving file");
+        }
+
+        G_save_to_bmp_file(fname);
+        printf("Saving Frame: %d/%d \n",frames,RECORDING_LENGTH);
+        frames += 1;
+
     }
 
 
