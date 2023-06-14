@@ -12,7 +12,7 @@
 int SWIDTH = 800;
 int SHEIGHT = 800;
 
-int ITERS = 100;
+int ITERS = 70;
 
 double WIN_RADIUS = 1;
 double CENTER_R = -1.5;
@@ -21,8 +21,8 @@ double MIN_TEST_r = 0.0;
 double MAX_TEST_r = 0.0;
 double MIN_TEST_c = 0.0;
 double MAX_TEST_c = 0.0;
-double ZOOM_RATE = 0.8;
-int RECORDING_LENGTH = 100;
+double ZOOM_RATE = 0.95;
+int RECORDING_LENGTH = 150;
 double color_oscilations = 4.0;
 
 void prcmx (char *control, complex c)
@@ -85,7 +85,7 @@ int test_z(double real, double complex_coef){
         }
     }
 
-    return i;
+    return i + 1 - log(log2(cabs(z)));
 }
 
 
@@ -167,7 +167,7 @@ int main()
                 reps = test_z(cur_real,cur_complex);
                 
                 
-                color_scale = (double)reps/(double)ITERS;
+                color_scale = ((double)reps)/(double)ITERS;
                 r = parametric(converge_color[0],diverge_color[0],color_scale,3);
                 g = parametric(converge_color[1],diverge_color[1],color_scale,3);
                 b = parametric(converge_color[2],diverge_color[2],color_scale,3);
@@ -180,19 +180,12 @@ int main()
 
 
         
-        //width_real = width_real * ZOOM_RATE;
-        //width_complex = width_complex * ZOOM_RATE;
+
         //scale up iterations per pixel as we zoom in
         iter_scaling = 1 + (1 - ZOOM_RATE);
 
         //compute the new starting min and max values based on the center
-        //window_width_x = fabs((center_real - width_real));
-        //window_width_y = fabs(center_complex - width_complex);
-        //MIN_TEST_r = center_real - window_width_x;
-        //MAX_TEST_r = center_real + window_width_x;
 
-        //MIN_TEST_c = center_complex - window_width_x;
-        //MAX_TEST_c = center_complex + window_width_x;
         WIN_RADIUS *= ZOOM_RATE;
         MIN_TEST_r = CENTER_R - WIN_RADIUS;
         MAX_TEST_r = CENTER_R + WIN_RADIUS;
