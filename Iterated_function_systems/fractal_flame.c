@@ -3,7 +3,7 @@
 
 #include  "FPToolkit.c"
 #include <math.h>
-#define HISTOGRAM_DIM 600 //MUST BE DIVISIBLE BY 3!!!
+#define HISTOGRAM_DIM 900 //MUST BE DIVISIBLE BY 3!!!
 
 /* Based on the following paper: https://flam3.com/flame_draves.pdf 
     with additional info here: https://en.wikipedia.org/wiki/Fractal_flame */
@@ -16,10 +16,10 @@ double ITERS = 6000000;
 double ERROR_TOLERANCE = 0.000001;
 double COLOR_GAMMA = 3.0; //must be greater than 1
 //viewport bounds for drawing points
-int MIN_X = -1;
-int MIN_Y = -1;
-int MAX_X = 1;
-int MAX_Y = 1;
+int MIN_X = -5;
+int MIN_Y = -5;
+int MAX_X = 5;
+int MAX_Y = 5;
 
 int SCREEN_WIDTH = HISTOGRAM_DIM/3;
 int SCREEN_HEIGHT = HISTOGRAM_DIM/3;
@@ -99,7 +99,10 @@ int v4(double p []){//horshoe
     return 1;
 }
 
+int v5(double p []){
 
+    return 1;
+}
 
 void set_color(double cur_color [], double new_color []){
     cur_color[0] = new_color[0];
@@ -108,13 +111,27 @@ void set_color(double cur_color [], double new_color []){
 }
 
 void flame_func(double p [], double w0, double w1, double w2, double w3, double w4){
-
+    double a,b,c,d,e,f;
+    double x = p[0];
+    double y = p[1];
+    double xy [] = {x,y};
+    
+    //xy[0] = a*xy[0] + b*
     //note, weights must add up to 1
-    v0(p); p[0] *= w0; p[1] *= w0;
-    v1(p); p[0] *= w1; p[1] *= w1;
-    v2(p); p[0] *= w2; p[1] *= w2;
-    v3(p); p[0] *= w3; p[1] *= w3;
-    v4(p); p[0] *= w4; p[1] *= w4;
+    v0(xy); xy[0] *= w0; xy[1] *= w0; 
+    //x += xy[0];  y += xy[1];
+    v1(xy); xy[0] *= w1; xy[1] *= w1; 
+    //x += xy[0];  y += xy[1];
+    v2(xy); xy[0] *= w2; xy[1] *= w2;
+    //x += xy[0];  y += xy[1];
+    v3(xy); xy[0] *= w3; xy[1] *= w3; 
+   // x += xy[0];  y += xy[1];
+    v4(xy); xy[0] *= w4; xy[1] *= w4; 
+    //x += xy[0];  y += xy[1];
+
+
+
+    p[0] = xy[0];  p[1] = xy[1];
 }
 
 int main()
@@ -159,10 +176,10 @@ int main()
         choice = (double)rand() / RAND_MAX ;
         //note, this is a trick to pick each based on predifined probabilities, they MUST add up to 1
         if(choice < P0) { set_color(cur_color,dark_orange); flame_func(p, .1, .2, .3, .2, .2); }
-        if(choice < P0 + P1) { set_color(cur_color,light_blue); flame_func(p, .1, .1, .1, .6, .1); }
-        if(choice < P0 + P1 + P2) { set_color(cur_color,violet); flame_func(p, .1, .3, .1, .2, .2); }
-        if(choice < P0 + P1 + P2 + P3) { set_color(cur_color,light_green); flame_func(p, .01, .01, .09, .09, .8); }
-        if(choice < P0 + P1 + P2 + P3 + P4) { set_color(cur_color,crimson); flame_func(p, .1, .6, .1, .1, .1); }
+        else if(choice < (P0 + P1)) { set_color(cur_color,light_blue); flame_func(p, .1, .1, .1, .6, .1); }
+        else if(choice < (P0 + P1 + P2)) { set_color(cur_color,violet); flame_func(p, .1, .3, .1, .2, .2); }
+        else if(choice < (P0 + P1 + P2 + P3)) { set_color(cur_color,light_green); flame_func(p, .01, .01, .09, .09, .8); }
+        else if(choice < (P0 + P1 + P2 + P3 + P4)) { set_color(cur_color,crimson); flame_func(p, .01, .9, .01, .01, .07); }
 
         //only consider points within our viewport
         if(p[0] > MIN_X && p[0] < MAX_X && p[1] > MIN_Y && p[1] < MAX_Y){
