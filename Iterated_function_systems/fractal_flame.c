@@ -215,6 +215,7 @@ int main()
 
     int key ;   
     key =  G_wait_key() ; // pause so user can see results
+    G_save_to_bmp_file("fractal_flame.bmp");
 
     return 0;
 }
