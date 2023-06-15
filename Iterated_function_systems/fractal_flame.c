@@ -3,23 +3,23 @@
 
 #include  "FPToolkit.c"
 #include <math.h>
-#define HISTOGRAM_DIM 900 //MUST BE DIVISIBLE BY 3!!!
+#define HISTOGRAM_DIM 2400 //MUST BE DIVISIBLE BY 3!!!
 
 /* Based on the following paper: https://flam3.com/flame_draves.pdf 
     with additional info here: https://en.wikipedia.org/wiki/Fractal_flame */
 
 
-double ITERS = 6000000;
+double ITERS = 10000000;
 
 
 //used for float rounding and comparison
 double ERROR_TOLERANCE = 0.000001;
 double COLOR_GAMMA = 3.0; //must be greater than 1
 //viewport bounds for drawing points
-int MIN_X = -5;
-int MIN_Y = -5;
-int MAX_X = 5;
-int MAX_Y = 5;
+double MIN_X = -.2;
+double MIN_Y = -.2;
+double MAX_X = .2;
+double MAX_Y = .2;
 
 int SCREEN_WIDTH = HISTOGRAM_DIM/3;
 int SCREEN_HEIGHT = HISTOGRAM_DIM/3;
@@ -116,7 +116,8 @@ void flame_func(double p [], double w0, double w1, double w2, double w3, double 
     double y = p[1];
     double xy [] = {x,y};
     
-    //xy[0] = a*xy[0] + b*
+    //xy[0] = a*x + b*y +c;
+    //xy[1] = d*x + e*y +f;
     //note, weights must add up to 1
     v0(xy); xy[0] *= w0; xy[1] *= w0; 
     //x += xy[0];  y += xy[1];
