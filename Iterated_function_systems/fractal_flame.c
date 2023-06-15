@@ -9,26 +9,26 @@
     with additional info here: https://en.wikipedia.org/wiki/Fractal_flame */
 
 
-double ITERS = 90000000;
+double ITERS = 50000000;
 
 
 //used for float rounding and comparison
-double ERROR_TOLERANCE = 0.000001;
+double ERROR_TOLERANCE = 0.001;
 double COLOR_GAMMA = 3.0; //must be greater than 1
 //viewport bounds for drawing points
-double MIN_X = -.1;
-double MIN_Y = -.1;
-double MAX_X = .1;
-double MAX_Y = .1;
+double MIN_X = -1;
+double MIN_Y = -1;
+double MAX_X = 1;
+double MAX_Y = 1;
 
 int SCREEN_WIDTH = HISTOGRAM_DIM/3;
 int SCREEN_HEIGHT = HISTOGRAM_DIM/3;
 //probabilities for the respectively numbered variation functions
-double P0 = 0.05;
-double P1 = 0.4;
-double P2 = 0.05;
-double P3 = 0.4;
-double P4 = 0.1;
+double P0 = 0.2;
+double P1 = 0.2;
+double P2 = 0.2;
+double P3 = 0.2;
+double P4 = 0.2;
 
 
 double dark_orange [] = {255/255.0, 140/255.0, 0/255.0};
@@ -99,7 +99,22 @@ int v4(double p []){//horshoe
     return 1;
 }
 
-int v5(double p []){
+int v5(double p []){// hankerchief
+    double theta = atan(p[0]/p[1]);
+    double x = r(p)*(sin(theta + r(p)));
+    double y = r(p)*(cos(theta - r(p)));
+
+    p[0] = y;  p[1] = x;
+
+    return 1;
+}
+
+int v6(double p []){ // polar
+    double theta = atan(p[0]/p[1]);
+    double x = theta/M_PI;
+    double y = r(p) - 1;
+
+    p[0] = y;  p[1] = x;
 
     return 1;
 }
@@ -110,32 +125,41 @@ void set_color(double cur_color [], double new_color []){
     cur_color[2] = new_color[2];
 }
 
-void flame_func(double p [], double w0, double w1, double w2, double w3, double w4){
+void flame_func(double p [], double w0, double w1, double w2, double w3, double w4, double w5, double w6){
     double a,b,c,d,e,f;
-    a = .5; b = 1; c = 0; d = 1.5; e = .4; f = 0;
+
+    //a = 1; b = 1; c = 0; d = 1; e = 1; f = 0;
+
+    a = .5; b = 1; c = 0; d = 1.5; e = 1.4; f = -1;
     double x = p[0];
     double y = p[1];
     double xy [] = {x,y};
     
-    xy[0] = a*x + b*y +c;
-    xy[1] = d*x + e*y +f;
+    //pre transformation
+    //xy[0] = a*x + b*y +c;
+    //xy[1] = d*x + e*y +f;
     //note, weights must add up to 1
-    v0(xy); xy[0] *= w0; xy[1] *= w0; 
-    //x += xy[0];  y += xy[1];
-    v1(xy); xy[0] *= w1; xy[1] *= w1; 
-    //x += xy[0];  y += xy[1];
-    v2(xy); xy[0] *= w2; xy[1] *= w2;
-    //x += xy[0];  y += xy[1];
-    v3(xy); xy[0] *= w3; xy[1] *= w3; 
-   // x += xy[0];  y += xy[1];
-    v4(xy); xy[0] *= w4; xy[1] *= w4; 
-    //x += xy[0];  y += xy[1];
+    if(fabs(w0) > ERROR_TOLERANCE)
+        { v0(xy); xy[0] *= w0; xy[1] *= w0; } 
+    if(fabs(w1) > ERROR_TOLERANCE)
+        { v1(xy); xy[0] *= w1; xy[1] *= w1; } 
+    if(fabs(w2) > ERROR_TOLERANCE)
+        { v2(xy); xy[0] *= w2; xy[1] *= w2; }
+    if(fabs(w3) > ERROR_TOLERANCE)
+        { v3(xy); xy[0] *= w3; xy[1] *= w3; } 
+    if(fabs(w4) > ERROR_TOLERANCE)
+        { v4(xy); xy[0] *= w4; xy[1] *= w4; }
+    if(fabs(w5) > ERROR_TOLERANCE)
+        { v5(xy); xy[0] *= w5; xy[1] *= w5; }
+    if(fabs(w6) > ERROR_TOLERANCE)
+        { v6(xy); xy[0] *= w6; xy[1] *= w6; } 
+
 
     //post transformation
     x = xy[0];  y = xy[1];
-    a = .1; b = .9; c = 0; d = .5; e = .4; f = 0;
-    xy[0] = a*x + b*y +c;
-    xy[1] = d*x + e*y +f;
+    a = .5; b = .9; c = 0; d = .5; e = .7; f = 0;
+    //xy[0] = a*x + b*y +c;
+    //xy[1] = d*x + e*y +f;
 
     p[0] = xy[0];  p[1] = xy[1];
 }
@@ -181,11 +205,11 @@ int main()
     for(int i=0; i < ITERS; ++i){
         choice = (double)rand() / RAND_MAX ;
         //note, this is a trick to pick each based on predifined probabilities, they MUST add up to 1
-        if(choice < P0) { set_color(cur_color,dark_orange); flame_func(p, .1, .2, .3, .2, .2); }
-        else if(choice < (P0 + P1)) { set_color(cur_color,light_blue); flame_func(p, .1, .1, .01, .69, .1); }
-        else if(choice < (P0 + P1 + P2)) { set_color(cur_color,violet); flame_func(p, .1, .3, .1, .2, .2); }
-        else if(choice < (P0 + P1 + P2 + P3)) { set_color(cur_color,light_green); flame_func(p, .01, .01, .09, .09, .8); }
-        else if(choice < (P0 + P1 + P2 + P3 + P4)) { set_color(cur_color,crimson); flame_func(p, .01, .9, .01, .01, .07); }
+        if(choice < P0) { set_color(cur_color,dark_orange); flame_func(p, .3, .2, .1, .6, .1, .2, .0); }
+        else if(choice < (P0 + P1)) { set_color(cur_color,light_blue); flame_func(p, .5, .3, .2, .1, .1, .1, .0); }
+        else if(choice < (P0 + P1 + P2)) { set_color(cur_color,violet); flame_func(p, .7, .1, .3, .2, .5, .1, .0); }
+        else if(choice < (P0 + P1 + P2 + P3)) { set_color(cur_color,light_green); flame_func(p, .1, .1, .6, .1, .2, .3, .0); }
+        else if(choice < (P0 + P1 + P2 + P3 + P4)) { set_color(cur_color,crimson); flame_func(p, .1, .4, .6, .2, .1, .1, .0); }
 
         //only consider points within our viewport
         if(p[0] > MIN_X && p[0] < MAX_X && p[1] > MIN_Y && p[1] < MAX_Y){
