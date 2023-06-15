@@ -30,6 +30,13 @@ double P2 = 0.3;
 double P3 = 0.2;
 double P4 = 0.2;
 
+
+double dark_orange [] = {255/255.0, 140/255.0, 0/255.0};
+double light_blue [] = {173/255.0, 216/255.0, 230/255.0};
+double violet [] = {238/255.0, 130/255.0, 238/255.0};
+double light_green [] = {144/255.0, 238/255.0, 144/255.0};
+double crimson [] = {220/255.0, 20/255.0, 60/255.0};
+
 int double_compare(double a, double b){
     double compare = fabs(a - b);
     if(compare < ERROR_TOLERANCE && compare > 0){
@@ -100,6 +107,16 @@ void set_color(double cur_color [], double new_color []){
     cur_color[2] = new_color[2];
 }
 
+double flame_func(double p [], double w0, double w1, double w2, double w3, double w4){
+    choice = (double)rand() / RAND_MAX ;
+    //note, weights must add up to 1
+    v0(p); p[0] *= w0; p[1] *= w0;
+    v1(p); p[0] *= w1; p[1] *= w1;
+    v2(p); p[0] *= w2; p[1] *= w2;
+    v3(p); p[0] *= w3; p[1] *= w3;
+    v4(p); p[0] *= w4; p[1] *= w4;
+}
+
 int main()
 {
     int    swidth, sheight ;
@@ -127,36 +144,33 @@ int main()
 
     //double n_iters = ITERS;
     srand(time(NULL));
-    double choice = 0;
+    //double choice = 0;
     int max_frequency = 0;
     int cur_x = 0;
     int cur_y = 0;
     int color = 0;
 
-    double dark_orange [] = {255/255.0, 140/255.0, 0/255.0};
-    double light_blue [] = {173/255.0, 216/255.0, 230/255.0};
-    double violet [] = {238/255.0, 130/255.0, 238/255.0};
-    double light_green [] = {144/255.0, 238/255.0, 144/255.0};
-    double crimson [] = {220/255.0, 20/255.0, 60/255.0};
+
 
     double cur_color [] = {0/255.0, 0/255.0, 0/255.0};
 
     printf("Computing Values! \n");
-    for(int i=0; i< ITERS; ++i){
+    for(int i=0; i < ITERS; ++i){
         choice = (double)rand() / RAND_MAX ;
         //note, this is a trick to pick each based on predifined probabilities, they MUST add up to 1
-        if(choice < P0) { set_color(cur_color,dark_orange); v0(p); }
-        if(choice < P0 + P1) { set_color(cur_color,light_blue); v1(p); }
-        if(choice < P0 + P1 + P2) { set_color(cur_color,violet); v2(p); }
-        if(choice < P0 + P1 + P2 + P3) { set_color(cur_color,light_green); v3(p); }
-        if(choice < P0 + P1 + P2 + P3 + P4) { set_color(cur_color,crimson); v4(p); }
+        if(choice < P0) { set_color(cur_color,dark_orange); flame_func(p, .1, .2, .3, .2, .2); }
+        if(choice < P0 + P1) { set_color(cur_color,light_blue); flame_func(p, .3, .2, .1, .2, .2); }
+        if(choice < P0 + P1 + P2) { set_color(cur_color,violet); flame_func(p, .1, .3, .1, .2, .2); }
+        if(choice < P0 + P1 + P2 + P3) { set_color(cur_color,light_green); flame_func(p, .2, .2, .2, .2, .2); }
+        if(choice < P0 + P1 + P2 + P3 + P4) { set_color(cur_color,crimson); flame_func(p, .1, .6, .1, .1, .1); }
 
         //TODO: Should I be changing/rounding p here for the next iteration??
 
         //discretize the point to match up with the histogram
         //TODO use (int) or round() ??
-        cur_x = (int)(((p[0] - MIN_X)/x_interval));//round from float to nearest interval bin
-        cur_y = (int)(((p[1] - MIN_Y)/y_interval));
+        cur_x = ((int)(((p[0] - MIN_X)/x_interval)));//round from float to nearest interval bin
+        cur_y = ((int)(((p[1] - MIN_Y)/y_interval)));
+
         //Add to histogram
         HISTOGRAM_FREQ[cur_y][cur_x] += 1;//we switch x and y because c is [row][column]
         //update max frequency
