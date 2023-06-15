@@ -9,7 +9,7 @@
     with additional info here: https://en.wikipedia.org/wiki/Fractal_flame */
 
 
-double ITERS = 20000000;
+double ITERS = 200000000;
 
 
 //used for float rounding and comparison
