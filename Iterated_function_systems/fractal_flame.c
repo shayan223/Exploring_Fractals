@@ -22,6 +22,7 @@ double HISTOGRAM_COLOR [2400][2400][3] = {0.0};
 int HISTOGRAM_DIM = 2400;
 //used for float rounding and comparison
 double ERROR_TOLERANCE = 0.000001
+double COLOR_GAMMA = 3.0 //must be greater than 1
 //viewport bounds for drawing points
 int MIN_X = -2;
 int MIN_Y = -2;
@@ -132,6 +133,7 @@ int main()
     //double n_iters = ITERS;
     srand(time(NULL));
     double choice = 0;
+    int max_frequency = 0;
     int cur_x = 0;
     int cur_y = 0;
     int color = 0;
@@ -160,18 +162,23 @@ int main()
         cur_y = round(((p[1] - MIN_Y)/y_interval));
         //Add to histogram
         HISTOGRAM_FREQ[cur_y][cur_x] += 1;//we switch x and y because c is [row][column]
+        //update max frequency
+        if(HISTOGRAM_FREQ[cur_y][cur_x] > max_frequency){
+            max_frequency = HISTOGRAM_FREQ[cur_y][cur_x];
+        }
 
         //update color for the given coordinate: the average of the newest addition and what it used to be
-        HISTOGRAM_COLOR[cur_y][cur_x][0] = (HISTOGRAM_COLOR[cur_y][cur_x][0] + cur_color[0])/2.0
-        HISTOGRAM_COLOR[cur_y][cur_x][1] = (HISTOGRAM_COLOR[cur_y][cur_x][1] + cur_color[1])/2.0
-        HISTOGRAM_COLOR[cur_y][cur_x][2] = (HISTOGRAM_COLOR[cur_y][cur_x][2] + cur_color[2])/2.0
+        HISTOGRAM_COLOR[cur_y][cur_x][0] = (HISTOGRAM_COLOR[cur_y][cur_x][0] + cur_color[0])/2.0;
+        HISTOGRAM_COLOR[cur_y][cur_x][1] = (HISTOGRAM_COLOR[cur_y][cur_x][1] + cur_color[1])/2.0;
+        HISTOGRAM_COLOR[cur_y][cur_x][2] = (HISTOGRAM_COLOR[cur_y][cur_x][2] + cur_color[2])/2.0;
         
     }
 
     double alpha = 0.0;
-    double gamma = 0.0;
+    double gamma = COLOR_GAMMA;
     double avg_freq = 0.0;
     double avg_color [] = {0.0, 0.0, 0.0}; 
+    
     //Render the image using the histogram and color buffer
     //to accomplish super-sampling, we use every 3x3 buffered grid as a pixel
     for(int i=0; i < HISTOGRAM_DIM; i+=3){
@@ -183,13 +190,25 @@ int main()
             avg_freq = avg_freq / 9.0;
             
             //same for the color
-            avg_color = HISTOGRAM_COLOR[i][j] + HISTOGRAM_COLOR[i][j+1] + HISTOGRAM_COLOR[i][j+2]
-            + HISTOGRAM_COLOR[i+1][j] + HISTOGRAM_COLOR[i+1][j+1] + HISTOGRAM_COLOR[i+1][j+2] 
-            + HISTOGRAM_COLOR[i+2][j] + HISTOGRAM_COLOR[i+2][j+1] + HISTOGRAM_COLOR[i+2][j+2]
-            avg_color = avg_color / 9.0;
+            for(int channel = 0; channel < 3; ++channel){
+                avg_color[channel] = HISTOGRAM_COLOR[i][j][channel] + HISTOGRAM_COLOR[i][j+1][channel] + HISTOGRAM_COLOR[i][j+2][channel]
+                + HISTOGRAM_COLOR[i+1][j][channel] + HISTOGRAM_COLOR[i+1][j+1][channel] + HISTOGRAM_COLOR[i+1][j+2][channel]
+                + HISTOGRAM_COLOR[i+2][j][channel] + HISTOGRAM_COLOR[i+2][j+1][channel] + HISTOGRAM_COLOR[i+2][j+2][channel]
+                avg_color[channel] = avg_color[channel] / 9.0;
+            }
+            
 
             //use log values to get a better visual due to vastly varying values
-            alpha = 
+            alpha = log(avg_freq)/log(max_frequency);
+
+            //update color with alpha and gamma values
+            avg_color[0] = avg_color[0] * pow(alpha,1/gamma);
+            avg_color[1] = avg_color[1] * pow(alpha,1/gamma);
+            avg_color[2] = avg_color[2] * pow(alpha,1/gamma);
+
+            //Render computed pixel
+            G_rgb(avg_color[0],avg_color[1],avg_color[2]);
+            G_point(i+1,j+1);
             
         }
     }
