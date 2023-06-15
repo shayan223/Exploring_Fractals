@@ -3,33 +3,26 @@
 
 #include  "FPToolkit.c"
 #include <math.h>
-
+#define HISTOGRAM_DIM 300 //MUST BE DIVISIBLE BY 3!!!
 
 /* Based on the following paper: https://flam3.com/flame_draves.pdf 
     with additional info here: https://en.wikipedia.org/wiki/Fractal_flame */
 
-//double SQ_SIZE = 600; //initial square size
-double POLY_W = 500;
-double POLY_H = 400;
-double THICKNESS = 50;
-double BUF_DIST = 50.0;
+
 double ITERS = 6000000;
 
-double PIXEL_VALUES [800][800] = {0};
-int HISTOGRAM_FREQ [2400][2400] = {0};
-double HISTOGRAM_COLOR [2400][2400][3] = {0.0};
 
-int HISTOGRAM_DIM = 2400;
 //used for float rounding and comparison
-double ERROR_TOLERANCE = 0.000001
-double COLOR_GAMMA = 3.0 //must be greater than 1
+double ERROR_TOLERANCE = 0.000001;
+double COLOR_GAMMA = 3.0; //must be greater than 1
 //viewport bounds for drawing points
 int MIN_X = -2;
 int MIN_Y = -2;
 int MAX_X = 2;
 int MAX_Y = 2;
 
-
+int SCREEN_WIDTH = 100;
+int SCREEN_HEIGHT = 100;
 //probabilities for the respectively numbered variation functions
 double P0 = 0.1;
 double P1 = 0.2;
@@ -65,14 +58,14 @@ int v0(double p []){//linear
 }
 
 int v1(double p []){//sinusoidal
-    p[0] = sin[p[0]];
-    p[1] = sin[p[1]];
+    p[0] = sin(p[0]);
+    p[1] = sin(p[1]);
 
     return 1;
 }
 
 int v2(double p []){//spherical
-    double frac = (1/pow(r(p),2))
+    double frac = (1/pow(r(p),2));
     p[0] = frac*p[0];
     p[1] = frac*p[1];
 
@@ -85,8 +78,8 @@ int v3(double p []){//swirl
     double y = p[1];
     double p_temp [] = {x,y};
 
-    p[0] = (x*sin(pow(r(p_temp),2))) - (y*cos(pow(r(p_temp,2)))); //xsin(r^2) - ycos(r^2)
-    p[1] = (x*cos(pow(r(p_temp),2))) + (y*sin(pow(r(p_temp,2)))); //xcos(r^2) + ysin(r^2)
+    p[0] = (x*sin(pow(r(p_temp),2))) - (y*cos(pow(r(p_temp),2))); //xsin(r^2) - ycos(r^2)
+    p[1] = (x*cos(pow(r(p_temp),2))) + (y*sin(pow(r(p_temp),2))); //xcos(r^2) + ysin(r^2)
 }
 
 int v4(double p []){//horshoe
@@ -111,13 +104,15 @@ int main()
 {
     int    swidth, sheight ;
     
+    int HISTOGRAM_FREQ [HISTOGRAM_DIM][HISTOGRAM_DIM] = {0};
+    double HISTOGRAM_COLOR [HISTOGRAM_DIM][HISTOGRAM_DIM][3] = {0.0};
     //Because doubles are not discrete, we have to divide into a grid of potential x,y values to 
     //fit everything into discrete locations in our histogram array
     double x_interval = (fabs(MAX_X - MIN_X))/(double)HISTOGRAM_DIM;
     double y_interval = (fabs(MAX_X - MIN_X))/(double)HISTOGRAM_DIM;
 
     // must do this before you do 'almost' any other graphical tasks 
-    swidth = 800 ;  sheight = 800 ;
+    swidth = SCREEN_WIDTH ;  sheight = SCREEN_HEIGHT ;
     G_init_graphics (swidth,sheight) ;  // interactive graphics
 
     
@@ -146,6 +141,7 @@ int main()
 
     double cur_color [] = {0/255.0, 0/255.0, 0/255.0};
 
+    printf("Computing Values! \n");
     for(int i=0; i< ITERS; ++i){
         choice = (double)rand() / RAND_MAX ;
         //note, this is a trick to pick each based on predifined probabilities, they MUST add up to 1
@@ -158,8 +154,9 @@ int main()
         //TODO: Should I be changing/rounding p here for the next iteration??
 
         //discretize the point to match up with the histogram
-        cur_x = round(((p[0] - MIN_X)/x_interval));//round from float to nearest interval bin
-        cur_y = round(((p[1] - MIN_Y)/y_interval));
+        //TODO use (int) or round() ??
+        cur_x = (int)(((p[0] - MIN_X)/x_interval));//round from float to nearest interval bin
+        cur_y = (int)(((p[1] - MIN_Y)/y_interval));
         //Add to histogram
         HISTOGRAM_FREQ[cur_y][cur_x] += 1;//we switch x and y because c is [row][column]
         //update max frequency
@@ -179,6 +176,7 @@ int main()
     double avg_freq = 0.0;
     double avg_color [] = {0.0, 0.0, 0.0}; 
     
+    printf("Rendering! \n");
     //Render the image using the histogram and color buffer
     //to accomplish super-sampling, we use every 3x3 buffered grid as a pixel
     for(int i=0; i < HISTOGRAM_DIM; i+=3){
@@ -186,14 +184,14 @@ int main()
             //average together the 3x3 grid of values
             avg_freq = HISTOGRAM_FREQ[i][j] + HISTOGRAM_FREQ[i][j+1] + HISTOGRAM_FREQ[i][j+2]
             + HISTOGRAM_FREQ[i+1][j] + HISTOGRAM_FREQ[i+1][j+1] + HISTOGRAM_FREQ[i+1][j+2] 
-            + HISTOGRAM_FREQ[i+2][j] + HISTOGRAM_FREQ[i+2][j+1] + HISTOGRAM_FREQ[i+2][j+2]
+            + HISTOGRAM_FREQ[i+2][j] + HISTOGRAM_FREQ[i+2][j+1] + HISTOGRAM_FREQ[i+2][j+2];
             avg_freq = avg_freq / 9.0;
             
             //same for the color
             for(int channel = 0; channel < 3; ++channel){
                 avg_color[channel] = HISTOGRAM_COLOR[i][j][channel] + HISTOGRAM_COLOR[i][j+1][channel] + HISTOGRAM_COLOR[i][j+2][channel]
                 + HISTOGRAM_COLOR[i+1][j][channel] + HISTOGRAM_COLOR[i+1][j+1][channel] + HISTOGRAM_COLOR[i+1][j+2][channel]
-                + HISTOGRAM_COLOR[i+2][j][channel] + HISTOGRAM_COLOR[i+2][j+1][channel] + HISTOGRAM_COLOR[i+2][j+2][channel]
+                + HISTOGRAM_COLOR[i+2][j][channel] + HISTOGRAM_COLOR[i+2][j+1][channel] + HISTOGRAM_COLOR[i+2][j+2][channel];
                 avg_color[channel] = avg_color[channel] / 9.0;
             }
             
